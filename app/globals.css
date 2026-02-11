@@ -1,0 +1,122 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #ff6b9c;
+  --color-primary-dark: #e04e84;
+  --color-secondary: #00D4AA;
+  --color-admin-header: #2D3748;
+  --color-background-light: #FFF8F0;
+  --color-background-dark: #230f16;
+  --color-card-light: #ffffff;
+  --color-neutral-dark: #2D3748;
+
+  --font-display: "Plus Jakarta Sans", sans-serif;
+  --font-admin: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  --background-image-hero-pattern: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ff6b9c10' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Custom Utilities */
+@utility glass-nav {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Admin Login Page Specific Styles */
+.uma-pattern {
+  background-color: var(--color-background-light);
+  background-image: radial-gradient(circle at 2px 2px, rgba(255, 107, 156, 0.05) 1px, transparent 0);
+  background-size: 40px 40px;
+}
+
+/* Subtle silhouette effect using gradients as placeholders for themed patterns */
+.silhouette-overlay {
+  background: linear-gradient(135deg, rgba(255, 248, 240, 0) 0%, rgba(255, 107, 156, 0.03) 50%, rgba(255, 248, 240, 0) 100%);
+}
+
+.bg-background-light {
+  background-color: var(--color-background-light);
+}
+
+.bg-background-dark {
+  background-color: var(--color-background-dark);
+}
+
+.text-neutral-dark {
+  color: var(--color-neutral-dark);
+}
+
+.bg-primary {
+  background-color: var(--color-primary);
+}
+
+.text-primary {
+  color: var(--color-primary);
+}
+
+.border-primary {
+  border-color: var(--color-primary);
+}
+
+.bg-secondary-teal {
+  background-color: var(--color-accent);
+}
+
+.text-secondary-teal {
+  color: var(--color-accent);
+}
+
+.border-secondary-teal {
+  border-color: var(--color-accent);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #FFF8F0;
+}
+::-webkit-scrollbar-thumb {
+    background: #ffb3ce;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #ff6ba1;
+}
+
+/* Autofill styles override */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #3d242c inset !important; /* Dark background color matching dark theme */
+  -webkit-text-fill-color: #ffffff !important; /* White text color */
+  caret-color: #ffffff; /* White cursor color */
+  border: 1px solid #4b5563 !important; /* Matching border color */
+  border-radius: 0.5rem; /* Ensuring rounded corners remain */
+  transition: background-color 5000s ease-in-out 0s; /* Delay background color change */
+}
+
+/* Also handle light theme inputs */
+input[data-theme="light"]:-webkit-autofill,
+input[data-theme="light"]:-webkit-autofill:hover,
+input[data-theme="light"]:-webkit-autofill:focus,
+input[data-theme="light"]:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #f3f4f6 inset !important; /* Light background color */
+  -webkit-text-fill-color: #111827 !important; /* Dark text color */
+  caret-color: #111827; /* Dark cursor color */
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-display);
+  background-color: var(--color-background-light);
+  color: #1d0c12;
+  overflow-x: hidden;
+}
