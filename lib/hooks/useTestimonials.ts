@@ -11,7 +11,7 @@ function mapToTestimonial(row: any): Testimonial {
   return {
     id: row.id,
     name: row.name,
-    trainerId: undefined, // Removed for privacy
+    trainerId: null, // Removed for privacy
     rating: row.rating,
     comment: row.comment,
     createdAt: row.created_at ? new Date(row.created_at) : null,
