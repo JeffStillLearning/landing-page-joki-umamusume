@@ -1,0 +1,44 @@
+/* Custom styles for Swiper carousels */
+
+.mySwiper {
+  padding-bottom: 40px;
+}
+
+/* Hide navigation buttons on mobile */
+@media (max-width: 767px) {
+  .mySwiper .swiper-button-next,
+  .mySwiper .swiper-button-prev {
+    display: none !important;
+  }
+}
+
+/* Show navigation buttons on desktop */
+@media (min-width: 1024px) {
+  .mySwiper .swiper-button-next,
+  .mySwiper .swiper-button-prev {
+    display: block !important;
+  }
+}
+
+/* Adjust pagination position */
+.swiper-pagination {
+  bottom: 0 !important;
+}
+
+/* Custom styles for testimonial autoplay carousel */
+.testimonial-autoplay .swiper-slide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Ensure smooth transitions */
+.swiper {
+  overflow: visible;
+}
+
+/* Adjust for mobile touch interactions */
+.swiper-slide {
+  height: auto;
+  margin-bottom: 20px;
+}

@@ -1,13 +1,14 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGameEvents } from '@/lib/hooks/useGameEvents';
 import { getOptimizedImageUrl } from '@/lib/cloudinary';
 import type { GameEvent } from '@/lib/db/schema';
+import './carousel-custom.css';
 
 function EventCard({ event }: { event: GameEvent }) {
   // Generate optimized Cloudinary URL if cloudinaryId exists
-  const imageUrl = event.cloudinaryId 
+  const imageUrl = event.cloudinaryId
     ? getOptimizedImageUrl(event.cloudinaryId, { width: 400, height: 200, crop: 'fill' })
     : null;
 
@@ -26,7 +27,7 @@ function EventCard({ event }: { event: GameEvent }) {
   // Format price as Indonesian Rupiah
   const formatPrice = (price: string | null) => {
     if (!price) return 'Rp 0'; // Return default value if price is null
-    
+
     // Extract numeric value from price string (e.g., "Rp 250.000" -> 250000)
     const numericValue = parseFloat(price.replace(/[^\d]/g, ''));
     return isNaN(numericValue)
@@ -39,8 +40,8 @@ function EventCard({ event }: { event: GameEvent }) {
   };
 
   return (
-    <div className="bg-background-light rounded-2xl overflow-hidden shadow-lg hover:shadow-xl hover:shadow-pink-100 transition-all duration-300 group border border-pink-100">
-      <div className="h-48 bg-gray-200 relative overflow-hidden">
+    <div className="bg-background-light rounded-2xl overflow-hidden shadow-lg hover:shadow-xl hover:shadow-pink-100 transition-all duration-300 group border border-pink-100 flex flex-col h-full">
+      <div className="aspect-video bg-gray-200 relative overflow-hidden">
         {imageUrl ? (
           // Optimized Cloudinary image with f_auto,q_auto
           <img
@@ -62,14 +63,14 @@ function EventCard({ event }: { event: GameEvent }) {
           </span>
         </div>
       </div>
-      <div className="p-6">
+      <div className="p-6 flex-grow flex flex-col">
         <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-primary transition-colors">
           {event.name}
         </h3>
-        <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+        <p className="text-sm text-gray-600 mb-4 flex-grow">
           {event.description}
         </p>
-        <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200/50">
+        <div className="flex items-center justify-between pt-4 border-t border-gray-200/50 mt-auto">
           <div className="flex flex-col">
             <span className="text-xs text-gray-500 font-medium">{event.priceLabel || 'Mulai dari'}</span>
             <span className="text-lg font-black text-primary">{formatPrice(event.price)}</span>
@@ -86,13 +87,13 @@ function EventCard({ event }: { event: GameEvent }) {
 // Loading skeleton for event cards
 function EventCardSkeleton() {
   return (
-    <div className="bg-background-light rounded-2xl overflow-hidden shadow-lg border border-pink-100 animate-pulse">
-      <div className="h-48 bg-gray-200"></div>
-      <div className="p-6">
+    <div className="bg-background-light rounded-2xl overflow-hidden shadow-lg border border-pink-100 animate-pulse flex flex-col h-full">
+      <div className="aspect-video bg-gray-200"></div>
+      <div className="p-6 flex-grow flex flex-col">
         <div className="h-6 bg-gray-200 rounded w-3/4 mb-3"></div>
-        <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
+        <div className="h-4 bg-gray-200 rounded w-full mb-2 flex-grow"></div>
         <div className="h-4 bg-gray-200 rounded w-2/3 mb-4"></div>
-        <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200/50">
+        <div className="flex items-center justify-between pt-4 border-t border-gray-200/50 mt-auto">
           <div className="space-y-1">
             <div className="h-3 bg-gray-200 rounded w-16"></div>
             <div className="h-5 bg-gray-200 rounded w-24"></div>
@@ -142,10 +143,35 @@ const fallbackEvents: GameEvent[] = [
 ];
 
 export default function Events() {
+  const [currentIndex, setCurrentIndex] = useState(0);
   const { data: events, isLoading, error } = useGameEvents();
 
   // Use fallback data if no data or error
   const displayEvents = events && events.length > 0 ? events : fallbackEvents;
+  
+  // Calculate number of slides based on events count
+  const itemsPerPage = 3; // Show 3 items per slide on desktop
+  const totalPages = Math.ceil(displayEvents.length / itemsPerPage);
+  
+  // Handle next slide
+  const nextSlide = () => {
+    setCurrentIndex((prevIndex) => 
+      prevIndex === totalPages - 1 ? 0 : prevIndex + 1
+    );
+  };
+  
+  // Handle previous slide
+  const prevSlide = () => {
+    setCurrentIndex((prevIndex) => 
+      prevIndex === 0 ? totalPages - 1 : prevIndex - 1
+    );
+  };
+  
+  // Handle dot click
+  const goToSlide = (index: number) => {
+    setCurrentIndex(index);
+  };
+  
 
   return (
     <section className="py-16 bg-white relative border-b border-pink-50" id="event">
@@ -161,23 +187,83 @@ export default function Events() {
           </a> */}
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {isLoading ? (
-            <>
-              <EventCardSkeleton />
-              <EventCardSkeleton />
-              <EventCardSkeleton />
-            </>
-          ) : error ? (
-            // Show fallback on error
-            displayEvents.map((event) => (
-              <EventCard key={event.id} event={event} />
-            ))
-          ) : (
-            displayEvents.map((event) => (
-              <EventCard key={event.id} event={event} />
-            ))
-          )}
+        <div className="relative px-4 md:px-8 lg:px-12">
+          <div className="overflow-hidden py-8">
+            {/* Navigation buttons */}
+            <button 
+              onClick={prevSlide}
+              className="absolute left-0 top-1/2 -translate-y-1/2 -left-10 z-10 bg-white rounded-full p-3 shadow-lg hover:scale-105 transition-transform duration-300 focus:outline-none"
+              aria-label="Previous slide"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            
+            <button 
+              onClick={nextSlide}
+              className="absolute right-0 top-1/2 -translate-y-1/2 -right-10 z-10 bg-white rounded-full p-3 shadow-lg hover:scale-105 transition-transform duration-300 focus:outline-none"
+              aria-label="Next slide"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+            
+            {/* Slides container */}
+            <div className="flex transition-transform duration-500 ease-in-out" 
+                 style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
+              {isLoading ? (
+                <div className="flex w-full">
+                  {[...Array(itemsPerPage)].map((_, idx) => (
+                    <div key={idx} className="w-full md:w-1/2 lg:w-1/3 px-4 flex-shrink-0">
+                      <EventCardSkeleton />
+                    </div>
+                  ))}
+                </div>
+              ) : error ? (
+                // Show fallback on error
+                <div className="flex w-full">
+                  {displayEvents.map((event, idx) => (
+                    <div key={event.id} className="w-full md:w-1/2 lg:w-1/3 px-4 flex-shrink-0 h-full items-stretch">
+                      <EventCard event={event} />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <>
+                  {Array.from({ length: totalPages }).map((_, slideIndex) => (
+                    <div 
+                      key={slideIndex} 
+                      className="flex w-full min-w-full"
+                    >
+                      {displayEvents
+                        .slice(slideIndex * itemsPerPage, (slideIndex + 1) * itemsPerPage)
+                        .map((event) => (
+                          <div key={event.id} className="w-full md:w-1/2 lg:w-1/3 px-4 flex-shrink-0 h-full items-stretch">
+                            <EventCard event={event} />
+                          </div>
+                        ))}
+                    </div>
+                  ))}
+                </>
+              )}
+            </div>
+          </div>
+          
+          {/* Pagination dots */}
+          <div className="flex justify-center mt-8 space-x-2">
+            {Array.from({ length: totalPages }).map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => goToSlide(idx)}
+                className={`w-3 h-3 rounded-full transition-colors duration-300 ${
+                  idx === currentIndex ? 'bg-primary' : 'bg-gray-300'
+                }`}
+                aria-label={`Go to slide ${idx + 1}`}
+              />
+            ))}
+          </div>
         </div>
 
         <div className="md:hidden mt-8 text-center">

@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePricingPackages } from '@/lib/hooks/usePricingPackages';
 import type { PricingPackage } from '@/lib/db/schema';
+import './carousel-custom.css';
 
 // Feature icon mapping
 function getFeatureIcon(isPopular: boolean) {
@@ -26,8 +27,8 @@ function PricingCard({ pkg, isPopular }: { pkg: PricingPackage; isPopular: boole
 
   if (isPopular) {
     return (
-      <div className="group relative bg-white rounded-2xl border-2 border-primary p-8 shadow-2xl shadow-pink-100 transition-all duration-300 transform md:-translate-y-4 flex flex-col h-full">
-        <div className="absolute top-0 right-0 bg-primary text-white text-xs font-bold px-3 py-1 rounded-bl-xl rounded-tr-xl">POPULER</div>
+      <div className="group relative bg-white rounded-2xl border-2 border-primary p-8 shadow-2xl shadow-pink-100 transition-all duration-300 flex flex-col h-full items-stretch">
+        <div className="absolute top-0 right-0 bg-primary text-white text-xs font-bold px-3 py-1 rounded-bl-xl rounded-tr-xl z-10">POPULER</div>
         <h3 className="text-xl font-bold text-primary mb-2">{pkg.name}</h3>
         <div className="flex items-baseline gap-1 mb-2">
           <span className="text-4xl font-black text-gray-900">
@@ -44,8 +45,8 @@ function PricingCard({ pkg, isPopular }: { pkg: PricingPackage; isPopular: boole
           ))}
         </ul>
         <div className="mt-auto">
-          <a 
-            href="#contact" 
+          <a
+            href="#contact"
             className="w-full py-3 px-4 bg-primary hover:bg-primary-dark text-white font-bold rounded-xl transition-colors shadow-lg shadow-pink-200 cursor-pointer inline-block text-center"
           >
             Pesan sekarang
@@ -55,7 +56,7 @@ function PricingCard({ pkg, isPopular }: { pkg: PricingPackage; isPopular: boole
     );
   } else {
     return (
-      <div className="group relative bg-white rounded-2xl border border-gray-100 p-8 shadow-lg hover:shadow-xl hover:shadow-pink-100 transition-all duration-300 hover:-translate-y-1 flex flex-col h-full">
+      <div className="group relative bg-white rounded-2xl border border-gray-100 p-8 shadow-lg hover:shadow-xl hover:shadow-pink-100 transition-all duration-300 flex flex-col h-full items-stretch">
         <div className="absolute top-0 inset-x-0 h-2 bg-gray-200 rounded-t-2xl"></div>
         <h3 className="text-xl font-bold text-gray-900 mb-2">{pkg.name}</h3>
         <div className="flex items-baseline gap-1 mb-2">
@@ -73,8 +74,8 @@ function PricingCard({ pkg, isPopular }: { pkg: PricingPackage; isPopular: boole
           ))}
         </ul>
         <div className="mt-auto">
-          <a 
-            href="#contact" 
+          <a
+            href="#contact"
             className="w-full py-3 px-4 bg-gray-50 hover:bg-gray-100 text-gray-800 font-bold rounded-xl transition-colors border border-gray-200 cursor-pointer inline-block text-center"
           >
             Pesan sekarang
@@ -88,10 +89,10 @@ function PricingCard({ pkg, isPopular }: { pkg: PricingPackage; isPopular: boole
 // Loading skeleton for pricing cards
 function PricingCardSkeleton() {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-8 shadow-lg animate-pulse">
+    <div className="bg-white rounded-2xl border border-gray-100 p-8 shadow-lg animate-pulse flex flex-col h-full items-stretch">
       <div className="h-6 bg-gray-200 rounded w-1/2 mb-4"></div>
       <div className="h-10 bg-gray-200 rounded w-2/3 mb-6"></div>
-      <div className="space-y-4 mb-8">
+      <div className="space-y-4 mb-8 flex-grow">
         {[1, 2, 3, 4].map((i) => (
           <div key={i} className="flex items-center gap-3">
             <div className="w-5 h-5 bg-gray-200 rounded-full"></div>
@@ -99,7 +100,9 @@ function PricingCardSkeleton() {
           </div>
         ))}
       </div>
-      <div className="h-12 bg-gray-200 rounded-xl"></div>
+      <div className="mt-auto">
+        <div className="h-12 bg-gray-200 rounded-xl"></div>
+      </div>
     </div>
   );
 }
@@ -145,10 +148,35 @@ const fallbackPackages: PricingPackage[] = [
 ];
 
 export default function Services() {
+  const [currentIndex, setCurrentIndex] = useState(0);
   const { data: packages, isLoading, error } = usePricingPackages();
 
   // Use fallback data if no data or error
   const displayPackages = packages && packages.length > 0 ? packages : fallbackPackages;
+  
+  // Calculate number of slides based on packages count
+  const itemsPerPage = 3; // Show 3 items per slide on desktop
+  const totalPages = Math.ceil(displayPackages.length / itemsPerPage);
+  
+  // Handle next slide
+  const nextSlide = () => {
+    setCurrentIndex((prevIndex) => 
+      prevIndex === totalPages - 1 ? 0 : prevIndex + 1
+    );
+  };
+  
+  // Handle previous slide
+  const prevSlide = () => {
+    setCurrentIndex((prevIndex) => 
+      prevIndex === 0 ? totalPages - 1 : prevIndex - 1
+    );
+  };
+  
+  // Handle dot click
+  const goToSlide = (index: number) => {
+    setCurrentIndex(index);
+  };
+  
 
   return (
     <section className="py-20 bg-white relative" id="layanan">
@@ -158,23 +186,83 @@ export default function Services() {
           <p className="text-gray-600 max-w-2xl mx-auto">Pilih paket yang kamu butuhkan untuk merawat akunmu. Dengan sistem Add-on, kamu bisa tambah event lain selama event berlangsung</p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {isLoading ? (
-            <>
-              <PricingCardSkeleton />
-              <PricingCardSkeleton />
-              <PricingCardSkeleton />
-            </>
-          ) : error ? (
-            // Show fallback on error
-            displayPackages.map((pkg) => (
-              <PricingCard key={pkg.id} pkg={pkg} isPopular={pkg.isPopular || false} />
-            ))
-          ) : (
-            displayPackages.map((pkg) => (
-              <PricingCard key={pkg.id} pkg={pkg} isPopular={pkg.isPopular || false} />
-            ))
-          )}
+        <div className="relative px-4 md:px-8 lg:px-12">
+          <div className="overflow-hidden py-8">
+            {/* Navigation buttons */}
+            <button 
+              onClick={prevSlide}
+              className="absolute left-0 top-1/2 -translate-y-1/2 -left-10 z-10 bg-white rounded-full p-3 shadow-lg hover:scale-105 transition-transform duration-300 focus:outline-none"
+              aria-label="Previous slide"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            
+            <button 
+              onClick={nextSlide}
+              className="absolute right-0 top-1/2 -translate-y-1/2 -right-10 z-10 bg-white rounded-full p-3 shadow-lg hover:scale-105 transition-transform duration-300 focus:outline-none"
+              aria-label="Next slide"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+            
+            {/* Slides container */}
+            <div className="flex transition-transform duration-500 ease-in-out" 
+                 style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
+              {isLoading ? (
+                <div className="flex w-full">
+                  {[...Array(itemsPerPage)].map((_, idx) => (
+                    <div key={idx} className="w-full md:w-1/2 lg:w-1/3 px-4 flex-shrink-0 h-full">
+                      <PricingCardSkeleton />
+                    </div>
+                  ))}
+                </div>
+              ) : error ? (
+                // Show fallback on error
+                <div className="flex w-full">
+                  {displayPackages.map((pkg, idx) => (
+                    <div key={pkg.id} className="w-full md:w-1/2 lg:w-1/3 px-4 flex-shrink-0 h-full items-stretch">
+                      <PricingCard pkg={pkg} isPopular={pkg.isPopular || false} />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <>
+                  {Array.from({ length: totalPages }).map((_, slideIndex) => (
+                    <div 
+                      key={slideIndex} 
+                      className="flex w-full min-w-full"
+                    >
+                      {displayPackages
+                        .slice(slideIndex * itemsPerPage, (slideIndex + 1) * itemsPerPage)
+                        .map((pkg) => (
+                          <div key={pkg.id} className="w-full md:w-1/2 lg:w-1/3 px-4 flex-shrink-0 h-full items-stretch">
+                            <PricingCard pkg={pkg} isPopular={pkg.isPopular || false} />
+                          </div>
+                        ))}
+                    </div>
+                  ))}
+                </>
+              )}
+            </div>
+          </div>
+          
+          {/* Pagination dots */}
+          <div className="flex justify-center mt-8 space-x-2">
+            {Array.from({ length: totalPages }).map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => goToSlide(idx)}
+                className={`w-3 h-3 rounded-full transition-colors duration-300 ${
+                  idx === currentIndex ? 'bg-primary' : 'bg-gray-300'
+                }`}
+                aria-label={`Go to slide ${idx + 1}`}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </section>

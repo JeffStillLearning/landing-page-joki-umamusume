@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { createBrowserClient } from '@supabase/ssr';
 import type { PricingPackage } from '@/lib/db/schema';
 
 const QUERY_KEY = ['pricing-packages'];
@@ -25,6 +25,10 @@ export function usePricingPackages() {
   return useQuery({
     queryKey: QUERY_KEY,
     queryFn: async (): Promise<PricingPackage[]> => {
+      const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
       const { data, error } = await supabase
         .from('pricing_packages')
         .select('*')
@@ -45,6 +49,10 @@ export function useAllPricingPackages() {
   return useQuery({
     queryKey: [...QUERY_KEY, 'admin'],
     queryFn: async (): Promise<PricingPackage[]> => {
+      const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
       const { data, error } = await supabase
         .from('pricing_packages')
         .select('*')
@@ -65,6 +73,17 @@ export function useCreatePricingPackage() {
 
   return useMutation({
     mutationFn: async (newPackage: Omit<PricingPackage, 'id' | 'createdAt'>) => {
+      const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
+      
+      // Check if user is authenticated
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error(sessionError?.message || 'User session not found. Authentication required for this operation.');
+      }
+
       // Map camelCase to snake_case for Supabase
       const insertData = {
         name: newPackage.name,
@@ -102,6 +121,17 @@ export function useUpdatePricingPackage() {
       id,
       ...updates
     }: Partial<PricingPackage> & { id: string }) => {
+      const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
+      
+      // Check if user is authenticated
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error(sessionError?.message || 'User session not found. Authentication required for this operation.');
+      }
+
       // Map camelCase to snake_case for Supabase
       const updateData: Record<string, any> = {};
       if (updates.name !== undefined) updateData.name = updates.name;
@@ -136,6 +166,17 @@ export function useDeletePricingPackage() {
 
   return useMutation({
     mutationFn: async (id: string) => {
+      const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
+      
+      // Check if user is authenticated
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error(sessionError?.message || 'User session not found. Authentication required for this operation.');
+      }
+
       const { error } = await supabase
         .from('pricing_packages')
         .delete()

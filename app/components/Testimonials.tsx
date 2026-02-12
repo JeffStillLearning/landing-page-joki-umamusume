@@ -3,6 +3,11 @@
 import React from 'react';
 import { useTestimonials } from '@/lib/hooks/useTestimonials';
 import type { Testimonial } from '@/lib/db/schema';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Autoplay } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/autoplay';
+import './carousel-custom.css';
 
 function TestimonialCard({ testimonial, index }: { testimonial: Testimonial; index: number }) {
   // Generate random gradient based on index for variety
@@ -85,14 +90,36 @@ export default function Testimonials() {
             Gagal memuat testimoni. Silakan coba lagi nanti.
           </div>
         ) : displayTestimonials.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {displayTestimonials.map((testimonial, index) => (
-              <TestimonialCard
-                key={testimonial.id}
-                testimonial={testimonial}
-                index={index}
-              />
-            ))}
+          <div className="relative">
+            <Swiper
+              modules={[Autoplay]}
+              spaceBetween={24}
+              slidesPerView={1}
+              loop={true}
+              autoplay={{
+                delay: 3000,
+                disableOnInteraction: false,
+                pauseOnMouseEnter: true,
+              }}
+              breakpoints={{
+                640: {
+                  slidesPerView: 2,
+                },
+                1024: {
+                  slidesPerView: 3,
+                },
+              }}
+              className="mySwiper"
+            >
+              {displayTestimonials.map((testimonial, index) => (
+                <SwiperSlide key={testimonial.id}>
+                  <TestimonialCard
+                    testimonial={testimonial}
+                    index={index}
+                  />
+                </SwiperSlide>
+              ))}
+            </Swiper>
           </div>
         ) : (
           <div className="text-center text-gray-500 py-10 italic">

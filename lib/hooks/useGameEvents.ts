@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { createBrowserClient } from '@supabase/ssr';
 import { uploadToCloudinary } from '@/lib/cloudinary';
 import type { GameEvent } from '@/lib/db/schema';
 
@@ -27,6 +27,10 @@ export function useGameEvents() {
   return useQuery({
     queryKey: QUERY_KEY,
     queryFn: async (): Promise<GameEvent[]> => {
+      const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
       const { data, error } = await supabase
         .from('game_events')
         .select('*')
@@ -47,6 +51,10 @@ export function useAllGameEvents() {
   return useQuery({
     queryKey: [...QUERY_KEY, 'admin'],
     queryFn: async (): Promise<GameEvent[]> => {
+      const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
       const { data, error } = await supabase
         .from('game_events')
         .select('*')
@@ -83,6 +91,17 @@ export function useCreateGameEvent() {
       status?: string;
       imageFile?: File;
     }) => {
+      const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
+      
+      // Check if user is authenticated
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error(sessionError?.message || 'User session not found. Authentication required for this operation.');
+      }
+
       let cloudinaryId: string | undefined;
 
       // Upload image to Cloudinary if provided
@@ -147,6 +166,17 @@ export function useUpdateGameEvent() {
       status?: string;
       cloudinaryId?: string | null;
     }) => {
+      const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
+      
+      // Check if user is authenticated
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error(sessionError?.message || 'User session not found. Authentication required for this operation.');
+      }
+
       let cloudinaryId = existingCloudinaryId;
 
       // Upload new image if provided
@@ -190,6 +220,17 @@ export function useDeleteGameEvent() {
 
   return useMutation({
     mutationFn: async (id: string) => {
+      const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
+      
+      // Check if user is authenticated
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error(sessionError?.message || 'User session not found. Authentication required for this operation.');
+      }
+
       const { error } = await supabase
         .from('game_events')
         .delete()

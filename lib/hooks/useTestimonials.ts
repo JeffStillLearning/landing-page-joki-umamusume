@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { createBrowserClient } from '@supabase/ssr';
 import type { Testimonial } from '@/lib/db/schema';
 
 const QUERY_KEY = ['testimonials'];
@@ -11,7 +11,7 @@ function mapToTestimonial(row: any): Testimonial {
   return {
     id: row.id,
     name: row.name,
-    trainerId: undefined, // Removed for privacy
+    trainerId: null, // Removed for privacy
     rating: row.rating,
     comment: row.comment,
     createdAt: row.created_at ? new Date(row.created_at) : null,
@@ -23,6 +23,10 @@ export function useTestimonials() {
   return useQuery({
     queryKey: QUERY_KEY,
     queryFn: async (): Promise<Testimonial[]> => {
+      const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
       const { data, error } = await supabase
         .from('testimonials')
         .select('*')
@@ -43,6 +47,17 @@ export function useCreateTestimonial() {
 
   return useMutation({
     mutationFn: async (newTestimonial: Omit<Testimonial, 'id' | 'createdAt'>) => {
+      const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
+      
+      // Check if user is authenticated
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error(sessionError?.message || 'User session not found. Authentication required for this operation.');
+      }
+
       // Map camelCase to snake_case for Supabase
       const insertData = {
         name: newTestimonial.name,
@@ -78,6 +93,17 @@ export function useUpdateTestimonial() {
       id,
       ...updates
     }: Partial<Testimonial> & { id: string }) => {
+      const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
+      
+      // Check if user is authenticated
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error(sessionError?.message || 'User session not found. Authentication required for this operation.');
+      }
+
       // Map camelCase to snake_case for Supabase
       const updateData: Record<string, any> = {};
       if (updates.name !== undefined) updateData.name = updates.name;
@@ -110,6 +136,17 @@ export function useDeleteTestimonial() {
 
   return useMutation({
     mutationFn: async (id: string) => {
+      const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
+      
+      // Check if user is authenticated
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error(sessionError?.message || 'User session not found. Authentication required for this operation.');
+      }
+
       const { error } = await supabase
         .from('testimonials')
         .delete()
