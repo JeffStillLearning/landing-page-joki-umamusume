@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useGameEvents } from '@/lib/hooks/useGameEvents';
 import { getOptimizedImageUrl } from '@/lib/cloudinary';
 import type { GameEvent } from '@/lib/db/schema';
@@ -144,32 +144,78 @@ const fallbackEvents: GameEvent[] = [
 
 export default function Events() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isMobileView, setIsMobileView] = useState(false);
+  const carouselRef = useRef<HTMLDivElement>(null);
   const { data: events, isLoading, error } = useGameEvents();
 
   // Use fallback data if no data or error
   const displayEvents = events && events.length > 0 ? events : fallbackEvents;
-  
-  // Calculate number of slides based on events count
-  const itemsPerPage = 3; // Show 3 items per slide on desktop
-  const totalPages = Math.ceil(displayEvents.length / itemsPerPage);
-  
+
+  // Check if we're in mobile view
+  useEffect(() => {
+    const checkMobileView = () => {
+      setIsMobileView(window.innerWidth < 640);
+    };
+
+    checkMobileView();
+    
+    const handleResize = () => {
+      checkMobileView();
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Calculate number of slides based on view type
+  const totalPages = isMobileView ? displayEvents.length : Math.ceil(displayEvents.length / 3);
+
   // Handle next slide
   const nextSlide = () => {
-    setCurrentIndex((prevIndex) => 
+    setCurrentIndex((prevIndex) =>
       prevIndex === totalPages - 1 ? 0 : prevIndex + 1
     );
   };
-  
+
   // Handle previous slide
   const prevSlide = () => {
-    setCurrentIndex((prevIndex) => 
+    setCurrentIndex((prevIndex) =>
       prevIndex === 0 ? totalPages - 1 : prevIndex - 1
     );
   };
-  
-  // Handle dot click
+
+  // Handle dot click with smooth scrolling
   const goToSlide = (index: number) => {
-    setCurrentIndex(index);
+    if (isMobileView && carouselRef.current) {
+      const carousel = carouselRef.current;
+      const cardWidth = carousel.scrollWidth / displayEvents.length; // Average card width
+      const targetScrollPosition = index * cardWidth;
+      
+      carousel.scrollTo({
+        left: targetScrollPosition,
+        behavior: 'smooth'
+      });
+    } else {
+      setCurrentIndex(index);
+    }
+  };
+
+  // Handle scroll event to sync currentIndex with scroll position
+  const handleScroll = () => {
+    if (isMobileView && carouselRef.current) {
+      const carousel = carouselRef.current;
+      const scrollLeft = carousel.scrollLeft;
+      const scrollWidth = carousel.scrollWidth;
+      const cardWidth = scrollWidth / displayEvents.length; // Average card width
+      
+      // Calculate the current index based on scroll position
+      const newIndex = Math.round(scrollLeft / cardWidth);
+      
+      // Prevent infinite updates by checking if index actually changed
+      if (newIndex !== currentIndex && newIndex >= 0 && newIndex < displayEvents.length) {
+        setCurrentIndex(newIndex);
+      }
+    }
   };
   
 
@@ -189,76 +235,112 @@ export default function Events() {
         
         <div className="relative px-4 md:px-8 lg:px-12">
           <div className="overflow-hidden py-8">
-            {/* Navigation buttons */}
-            <button 
-              onClick={prevSlide}
-              className="absolute left-0 top-1/2 -translate-y-1/2 -left-10 z-10 bg-white rounded-full p-3 shadow-lg hover:scale-105 transition-transform duration-300 focus:outline-none"
-              aria-label="Previous slide"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            
-            <button 
-              onClick={nextSlide}
-              className="absolute right-0 top-1/2 -translate-y-1/2 -right-10 z-10 bg-white rounded-full p-3 shadow-lg hover:scale-105 transition-transform duration-300 focus:outline-none"
-              aria-label="Next slide"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
+            {/* Navigation buttons - hidden on mobile, shown on desktop */}
+            {!isMobileView && (
+              <>
+                <button
+                  onClick={prevSlide}
+                  className="absolute left-0 top-1/2 -translate-y-1/2 -left-10 z-10 bg-white rounded-full p-3 shadow-lg hover:scale-105 transition-transform duration-300 focus:outline-none"
+                  aria-label="Previous slide"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+
+                <button
+                  onClick={nextSlide}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 -right-10 z-10 bg-white rounded-full p-3 shadow-lg hover:scale-105 transition-transform duration-300 focus:outline-none"
+                  aria-label="Next slide"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </>
+            )}
             
             {/* Slides container */}
-            <div className="flex transition-transform duration-500 ease-in-out" 
-                 style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
-              {isLoading ? (
-                <div className="flex w-full">
-                  {[...Array(itemsPerPage)].map((_, idx) => (
-                    <div key={idx} className="w-full md:w-1/2 lg:w-1/3 px-4 flex-shrink-0">
+            {isMobileView ? (
+              // Mobile view: Horizontal scroll with snap
+              <div 
+                ref={carouselRef}
+                onScroll={handleScroll}
+                className="hide-scrollbar smooth-touch-scroll flex overflow-x-auto py-4 snap-x snap-mandatory" 
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              >
+                {isLoading ? (
+                  Array.from({ length: 3 }).map((_, idx) => (
+                    <div key={idx} className="snap-center flex-shrink-0 w-[85vw] mx-2">
                       <EventCardSkeleton />
                     </div>
-                  ))}
-                </div>
-              ) : error ? (
-                // Show fallback on error
-                <div className="flex w-full">
-                  {displayEvents.map((event, idx) => (
-                    <div key={event.id} className="w-full md:w-1/2 lg:w-1/3 px-4 flex-shrink-0 h-full items-stretch">
+                  ))
+                ) : error ? (
+                  // Show fallback on error
+                  displayEvents.map((event) => (
+                    <div key={event.id} className="snap-center flex-shrink-0 w-[85vw] mx-2">
                       <EventCard event={event} />
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <>
-                  {Array.from({ length: totalPages }).map((_, slideIndex) => (
-                    <div 
-                      key={slideIndex} 
-                      className="flex w-full min-w-full"
-                    >
-                      {displayEvents
-                        .slice(slideIndex * itemsPerPage, (slideIndex + 1) * itemsPerPage)
-                        .map((event) => (
-                          <div key={event.id} className="w-full md:w-1/2 lg:w-1/3 px-4 flex-shrink-0 h-full items-stretch">
-                            <EventCard event={event} />
-                          </div>
-                        ))}
+                  ))
+                ) : (
+                  displayEvents.map((event, index) => (
+                    <div key={event.id} className="snap-center flex-shrink-0 w-[85vw] mx-2" data-index={index}>
+                      <EventCard event={event} />
                     </div>
-                  ))}
-                </>
-              )}
-            </div>
+                  ))
+                )}
+              </div>
+            ) : (
+              // Desktop view: Traditional slider
+              <div className="flex transition-transform duration-500 ease-in-out"
+                   style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
+                {isLoading ? (
+                  <div className="flex w-full">
+                    {Array.from({ length: 3 }).map((_, idx) => (
+                      <div key={idx} className="w-1/3 px-4 flex-shrink-0">
+                        <EventCardSkeleton />
+                      </div>
+                    ))}
+                  </div>
+                ) : error ? (
+                  // Show fallback on error
+                  <div className="flex w-full">
+                    {displayEvents.map((event, idx) => (
+                      <div key={event.id} className="w-1/3 px-4 flex-shrink-0 h-full items-stretch">
+                        <EventCard event={event} />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <>
+                    {Array.from({ length: totalPages }).map((_, slideIndex) => (
+                      <div
+                        key={slideIndex}
+                        className="flex w-full min-w-full"
+                      >
+                        {displayEvents
+                          .slice(slideIndex * 3, (slideIndex + 1) * 3)
+                          .map((event) => (
+                            <div key={event.id} className="w-1/3 px-4 flex-shrink-0 h-full items-stretch">
+                              <EventCard event={event} />
+                            </div>
+                          ))}
+                      </div>
+                    ))}
+                  </>
+                )}
+              </div>
+            )}
           </div>
           
-          {/* Pagination dots */}
+          {/* Pagination dots - show on both mobile and desktop */}
           <div className="flex justify-center mt-8 space-x-2">
-            {Array.from({ length: totalPages }).map((_, idx) => (
+            {Array.from({ length: displayEvents.length }).map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => goToSlide(idx)}
-                className={`w-3 h-3 rounded-full transition-colors duration-300 ${
-                  idx === currentIndex ? 'bg-primary' : 'bg-gray-300'
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  idx === currentIndex ? 'bg-primary scale-125' : 'bg-gray-300'
                 }`}
                 aria-label={`Go to slide ${idx + 1}`}
               />
@@ -266,11 +348,6 @@ export default function Events() {
           </div>
         </div>
 
-        <div className="md:hidden mt-8 text-center">
-          <a className="inline-flex items-center gap-2 text-primary font-bold hover:underline" href="#contact">
-            Lihat Semua Event <span className="material-symbols-outlined text-sm">arrow_forward</span>
-          </a>
-        </div>
       </div>
     </section>
   );

@@ -35,3 +35,22 @@
   scroll-snap-align: center;
   flex-shrink: 0;
 }
+
+/* Mobile optimization for centered slides with 90% width */
+.mobile-centered-slide {
+  width: 90%;
+  margin-left: 5%;
+  margin-right: 5%;
+}
+
+/* Mobile optimization for carousel container */
+.mobile-carousel-container {
+  width: 100%;
+  overflow: hidden;
+}
+
+.mobile-carousel-slide {
+  width: 90vw;
+  margin: 0 5vw;
+  flex-shrink: 0;
+}

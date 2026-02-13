@@ -19,12 +19,12 @@ export default function Hero() {
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-600">UMA MUSUME</span>
         </h1>
         
-        <p className="text-xl md:text-2xl font-medium text-gray-600 mb-10 max-w-2xl mx-auto flex justify-center gap-10">
-          <span>Berpengalaman</span>
-          <span>Aman</span>
-          <span>Ramah</span>
-          <span>Puas</span>
-        </p>
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4 mb-10 max-w-2xl mx-auto">
+          <span className="px-4 py-2 text-sm md:text-base font-medium text-gray-600 bg-white/50 border border-gray-200 rounded-full text-center">Berpengalaman</span>
+          <span className="px-4 py-2 text-sm md:text-base font-medium text-gray-600 bg-white/50 border border-gray-200 rounded-full text-center">Aman</span>
+          <span className="px-4 py-2 text-sm md:text-base font-medium text-gray-600 bg-white/50 border border-gray-200 rounded-full text-center">Ramah</span>
+          <span className="px-4 py-2 text-sm md:text-base font-medium text-gray-600 bg-white/50 border border-gray-200 rounded-full text-center">Puas</span>
+        </div>
 
         
         {/* <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
