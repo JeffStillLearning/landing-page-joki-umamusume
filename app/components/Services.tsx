@@ -172,8 +172,9 @@ export default function Services() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Calculate number of slides based on view type
-  const totalPages = isMobileView ? displayPackages.length : Math.ceil(displayPackages.length / 3);
+  // Calculate number of slides based on view type with responsive itemsPerPage
+  const itemsPerPage = isMobileView ? 1 : 3;
+  const totalPages = Math.ceil(displayPackages.length / itemsPerPage);
 
   // Handle next slide
   const nextSlide = () => {
@@ -201,6 +202,7 @@ export default function Services() {
         behavior: 'smooth'
       });
     } else {
+      // For desktop, update the current index to the slide number
       setCurrentIndex(index);
     }
   };
@@ -318,7 +320,7 @@ export default function Services() {
                         className="flex w-full min-w-full"
                       >
                         {displayPackages
-                          .slice(slideIndex * 3, (slideIndex + 1) * 3)
+                          .slice(slideIndex * itemsPerPage, (slideIndex + 1) * itemsPerPage)
                           .map((pkg) => (
                             <div key={pkg.id} className="w-1/3 px-4 flex-shrink-0 h-full items-stretch">
                               <PricingCard pkg={pkg} isPopular={pkg.isPopular || false} />
@@ -334,7 +336,7 @@ export default function Services() {
           
           {/* Pagination dots - show on both mobile and desktop */}
           <div className="flex justify-center mt-8 space-x-2">
-            {Array.from({ length: displayPackages.length }).map((_, idx) => (
+            {Array.from({ length: totalPages }).map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => goToSlide(idx)}
