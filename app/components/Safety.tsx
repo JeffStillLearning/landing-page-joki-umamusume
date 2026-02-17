@@ -33,7 +33,7 @@ export default function Safety() {
             <div className="space-y-4">
               {/* Accordion Item 1 */}
               <div className="bg-white rounded-xl shadow-sm border border-pink-50 overflow-hidden">
-                <details className="group p-4" open>
+                <details className="group p-4">
                   <summary className="flex cursor-pointer items-center justify-between font-bold text-gray-900 list-none">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-green-50 rounded-lg text-green-600">

@@ -126,6 +126,18 @@ export default function Testimonials() {
             Belum ada testimoni. Jadilah yang pertama memberikan review!
           </div>
         )}
+
+        {/* Google Drive Testimoni Button */}
+        <div className="mt-10 md:mt-12 flex justify-center w-full">
+          <a
+            href="https://drive.google.com/drive/folders/1XkXLjKtwlg91z6eDHBE104Gn3txp9vbI?usp=sharing"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-gradient-to-r from-pink-500 to-rose-400 text-white font-bold px-6 py-3 md:px-10 md:py-4 text-sm md:text-base transform hover:-translate-y-0.5 rounded-full transition-all shadow-lg hover:shadow-xl hover:shadow-pink-500/20 hover:from-pink-600 hover:to-rose-500 active:opacity-80 mx-auto"
+          >
+            Drive Testimoni ↗
+          </a>
+        </div>
       </div>
       {/* Payment Methods */}
         <div className="mt-16 pt-10 border-t border-gray-100">

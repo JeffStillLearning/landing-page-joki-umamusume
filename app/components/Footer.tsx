@@ -14,27 +14,35 @@ export default function Footer() {
           <h2 className="text-3xl md:text-5xl font-black mb-6 tracking-tight relative z-10">PESAN SEKARANG</h2>
           <p className="text-gray-300 text-lg mb-10 max-w-xl mx-auto relative z-10">Jangan biarkan stamina terbuang sia-sia. Hubungi kami sekarang dan biarkan worker berpengalaman kami yang bekerja!</p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center relative z-10">
-            <a 
-              href="https://wa.me/6283110123195?text=Halo%20Admin%2C%20saya%20tertarik%20dengan%20jasa%20joki%20Uma%20Musume." 
-              target="_blank" 
+          <div className="flex flex-wrap gap-4 justify-center relative z-10">
+            <a
+              href="https://wa.me/6283110123195?text=Halo%20Admin%2C%20saya%20tertarik%20dengan%20jasa%20joki%20Uma%20Musume."
+              target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-3 bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-8 rounded-xl transition-all shadow-lg hover:shadow-green-500/30 transform hover:-translate-y-1 cursor-pointer"
+              className="flex items-center justify-center gap-3 bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-8 rounded-xl transition-all shadow-lg hover:shadow-green-500/30 transform hover:-translate-y-0.5 cursor-pointer"
             >
-              {/* Whatsapp Icon replacement */}
-              <span className="material-symbols-outlined text-2xl">chat</span>
+              <img src="/icons/whatsapp.png" alt="WhatsApp" className="w-6 h-6" />
               Chat WhatsApp
             </a>
-            <a 
-              href="https://discord.gg/888936708903694377" 
-              target="_blank" 
+            <a
+              href="https://discord.gg/888936708903694377"
+              target="_blank"
               rel="noopener noreferrer"
               aria-label="Chat Admin lewat Discord"
-              className="flex items-center justify-center gap-3 bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold py-4 px-8 rounded-xl transition-all shadow-lg hover:shadow-blue-500/30 transform hover:-translate-y-1 cursor-pointer"
+              className="flex items-center justify-center gap-3 bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold py-4 px-8 rounded-xl transition-all shadow-lg hover:shadow-blue-500/30 transform hover:-translate-y-0.5 cursor-pointer"
             >
-              {/* Discord Icon replacement */}
-              <span className="material-symbols-outlined text-2xl">chat</span>
-              Join Discord
+              <img src="/icons/discord.png" alt="Discord" className="w-6 h-6" />
+              Chat Discord
+            </a>
+            <a
+              href="https://m.me/JeffUmamusume"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Chat Admin lewat Facebook"
+              className="flex items-center justify-center gap-3 bg-[#1877F2] hover:bg-[#166fe5] text-white font-bold py-4 px-8 rounded-xl transition-all shadow-lg hover:shadow-blue-500/30 transform hover:-translate-y-0.5 cursor-pointer"
+            >
+              <img src="/icons/facebook.png" alt="Facebook" className="w-6 h-6" />
+              Chat Facebook
             </a>
           </div>
           
