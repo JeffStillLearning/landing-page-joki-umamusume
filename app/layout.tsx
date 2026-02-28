@@ -26,6 +26,9 @@ const jetBrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "Joki Uma Musume - Professional Game Boosting Service",
   description: "Professional Game Boosting Service for Uma Musume",
+  verification: {
+    google: "dEjcD43tsCB0R-ydq0fdHH4FpvISIfMbszlTzlWivKc",
+  },
 };
 
 export default function RootLayout({
