@@ -24,6 +24,7 @@ const jetBrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  applicationName: "Joki Umamusume",
   title: "Joki Uma Musume - Professional Game Boosting Service",
   description: "Professional Game Boosting Service for Uma Musume",
   verification: {
