@@ -45,7 +45,7 @@ export default function Hero() {
             <div className="text-sm font-medium text-gray-500">Pengalaman</div>
           </div>
           <div>
-            <div className="text-3xl font-black text-accent">S~Ug</div>
+            <div className="text-3xl font-black text-accent">S+~Ug</div>
             <div className="text-sm font-medium text-gray-500">Rating</div>
           </div>
           <div>
