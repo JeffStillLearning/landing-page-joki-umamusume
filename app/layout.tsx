@@ -25,8 +25,11 @@ const jetBrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   applicationName: "Joki Umamusume",
-  title: "Joki Uma Musume - Professional Game Boosting Service",
-  description: "Professional Game Boosting Service for Uma Musume",
+  title: "Joki Umamusume - Professional Game Boosting Service",
+  description: "Professional Game Boosting Service for Umamusume",
+  alternates: {
+    canonical: 'https://jokiuma.my.id',
+  },
   verification: {
     google: "dEjcD43tsCB0R-ydq0fdHH4FpvISIfMbszlTzlWivKc",
   },
@@ -41,6 +44,17 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "name": "Joki Umamusume",
+              "url": "https://jokiuma.my.id"
+            })
+          }}
+        />
       </head>
       <body
         className={`${plusJakartaSans.variable} ${inter.variable} ${jetBrainsMono.variable} antialiased`}
