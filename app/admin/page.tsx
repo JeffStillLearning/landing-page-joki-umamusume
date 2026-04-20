@@ -1,6 +1,5 @@
-import React from 'react';
-import AdminDashboard from './dashboard';
+import { redirect } from 'next/navigation';
 
-export default function AdminPage() {
-  return <AdminDashboard />;
+export default function RootAdminPage() {
+  redirect('/admin/dashboard');
 }

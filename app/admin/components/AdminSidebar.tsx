@@ -32,9 +32,9 @@ export default function AdminSidebar() {
       <nav className="p-4 space-y-1 flex-1 overflow-y-auto">
         <a 
           className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors font-medium ${
-            pathname === '/admin' ? 'bg-pink-50 text-primary' : 'text-slate-500 hover:bg-pink-50 hover:text-primary'
+            pathname === '/admin/dashboard' ? 'bg-pink-50 text-primary' : 'text-slate-500 hover:bg-pink-50 hover:text-primary'
           }`} 
-          href="/admin"
+          href="/admin/dashboard"
         >
           <span className="material-symbols-outlined text-[22px]">dashboard</span>
           <span>Dashboard</span>
@@ -48,15 +48,6 @@ export default function AdminSidebar() {
         >
           <span className="material-symbols-outlined text-[22px]">shopping_cart</span>
           <span>Pesanan</span>
-        </a>
-        
-        <div className="pt-4 pb-2 px-4">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Lainnya</p>
-        </div>
-
-        <a className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-pink-50 hover:text-primary rounded-xl transition-colors" href="/">
-          <span className="material-symbols-outlined text-[22px]">home</span>
-          <span className="font-medium">Landing Page</span>
         </a>
       </nav>
 
