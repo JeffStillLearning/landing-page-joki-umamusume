@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createBrowserClient } from '@supabase/ssr';
 import type { PricingPackage } from '@/lib/db/schema';
 
+export type { PricingPackage } from '@/lib/db/schema';
 const QUERY_KEY = ['pricing-packages'];
 
 // Helper to map Supabase row to PricingPackage type
@@ -13,7 +14,8 @@ function mapToPricingPackage(row: any): PricingPackage {
     name: row.name,
     price: row.price,
     description: row.description,
-    features: row.features,
+    typesOfServices: row.types_of_services,
+    features: row.features || [],
     isPopular: row.is_popular,
     isActive: row.is_active,
     createdAt: row.created_at ? new Date(row.created_at) : null,
@@ -89,6 +91,7 @@ export function useCreatePricingPackage() {
         name: newPackage.name,
         price: newPackage.price,
         description: newPackage.description,
+        types_of_services: newPackage.typesOfServices,
         features: newPackage.features,
         is_popular: newPackage.isPopular,
         is_active: newPackage.isActive,
@@ -137,6 +140,7 @@ export function useUpdatePricingPackage() {
       if (updates.name !== undefined) updateData.name = updates.name;
       if (updates.price !== undefined) updateData.price = updates.price;
       if (updates.description !== undefined) updateData.description = updates.description;
+      if (updates.typesOfServices !== undefined) updateData.types_of_services = updates.typesOfServices;
       if (updates.features !== undefined) updateData.features = updates.features;
       if (updates.isPopular !== undefined) updateData.is_popular = updates.isPopular;
       if (updates.isActive !== undefined) updateData.is_active = updates.isActive;

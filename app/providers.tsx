@@ -2,9 +2,13 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from '@/lib/theme-provider';
+import { CartProvider } from '@/lib/context/CartContext';
+import { Cart } from '@/app/components/Cart';
 import { useState, type ReactNode } from 'react';
+import { usePathname } from 'next/navigation';
 
 export function Providers({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -17,10 +21,17 @@ export function Providers({ children }: { children: ReactNode }) {
       })
   );
 
+  // Check if current path is an admin page
+  const isAdminPage = pathname?.startsWith('/admin');
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        {children}
+        <CartProvider>
+          {children}
+          {/* Only show Cart overlay on non-admin pages */}
+          {!isAdminPage && <Cart />}
+        </CartProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

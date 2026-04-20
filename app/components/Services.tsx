@@ -1,354 +1,243 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import { usePricingPackages } from '@/lib/hooks/usePricingPackages';
-import type { PricingPackage } from '@/lib/db/schema';
-import './carousel-custom.css';
+import React, { useState, useRef } from 'react';
+import { usePricingPackages, PricingPackage } from '@/lib/hooks/usePricingPackages';
+import { useCart } from '@/lib/context/CartContext';
 
-// Feature icon mapping
-function getFeatureIcon(isPopular: boolean) {
-  return isPopular ? 'verified' : 'check_circle';
-}
+export default function Services() {
+  const { data: packages, isLoading: isLoadingPackages } = usePricingPackages();
+  const [selectedPackage, setSelectedPackage] = useState<PricingPackage | null>(null);
 
-function PricingCard({ pkg, isPopular }: { pkg: PricingPackage; isPopular: boolean }) {
-  const features = pkg.features || [];
-
-  const formatCurrency = (price: string) => {
-    // Extract numeric value from price string (e.g., "Rp 250.000" -> 250000)
-    const numericValue = parseFloat(price.replace(/[^\d]/g, ''));
-    return isNaN(numericValue)
-      ? price
-      : new Intl.NumberFormat('id-ID', {
-          style: 'currency',
-          currency: 'IDR',
-          minimumFractionDigits: 0
-        }).format(numericValue);
+  // Filter packages by type
+  const packageGroups = {
+    'Paket': packages?.filter(p => p.typesOfServices === 'Paket') || [],
+    'Daily Scenario': packages?.filter(p => p.typesOfServices === 'Daily Scenario') || [],
+    'Lainnya': packages?.filter(p => !['Paket', 'Daily Scenario'].includes(p.typesOfServices || '')) || []
   };
 
-  if (isPopular) {
+  const renderCategory = (title: string, items: PricingPackage[], accentColor: string) => {
+    if (!isLoadingPackages && items.length === 0) return null;
+
     return (
-      <div className="group relative bg-white rounded-2xl border-2 border-primary p-8 shadow-2xl shadow-pink-100 transition-all duration-300 flex flex-col h-full items-stretch">
-        <div className="absolute top-0 right-0 bg-primary text-white text-xs font-bold px-3 py-1 rounded-bl-xl rounded-tr-xl z-10">POPULER</div>
-        <h3 className="text-xl font-bold text-primary mb-2">{pkg.name}</h3>
-        <div className="flex items-baseline gap-1 mb-2">
-          <span className="text-4xl font-black text-gray-900">
-            {formatCurrency(pkg.price)}
+      <div className="mb-12 last:mb-0">
+        <div className="flex items-center gap-3 mb-6 px-4 sm:px-0">
+          <div className={`w-2 h-8 rounded-full ${accentColor}`}></div>
+          <h3 className="text-2xl font-black text-[#1d0c12] uppercase tracking-tight">{title}</h3>
+          <span className="text-xs font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded-md">
+            {isLoadingPackages ? '...' : items.length} LAYANAN
           </span>
         </div>
-        <p className="text-gray-600 mb-4 flex-grow">{pkg.description}</p>
-        <ul className="space-y-4 mb-8 flex-grow">
-          {features.map((feature, idx) => (
-            <li key={idx} className="flex items-start gap-3 text-sm text-gray-800 font-medium">
-              <span className="material-symbols-outlined text-primary text-xl shrink-0">{getFeatureIcon(true)}</span>
-              <span>{feature}</span>
-            </li>
-          ))}
-        </ul>
-        <div className="mt-auto">
-          <a
-            href="#contact"
-            className="w-full py-3 px-4 bg-primary hover:bg-primary-dark text-white font-bold rounded-xl transition-colors shadow-lg shadow-pink-200 cursor-pointer inline-block text-center"
-          >
-            Pesan sekarang
-          </a>
+
+        {/* Horizontal Scroll Container */}
+        <div className="flex overflow-x-auto pb-6 gap-4 no-scrollbar snap-x px-4 sm:px-0 scroll-pl-4">
+          {isLoadingPackages ? (
+            Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={i} />)
+          ) : (
+            items.map((pkg) => (
+              <ServiceCard 
+                key={pkg.id} 
+                pkg={pkg} 
+                onShowDetail={() => setSelectedPackage(pkg)} 
+              />
+            ))
+          )}
         </div>
       </div>
     );
-  } else {
-    return (
-      <div className="group relative bg-white rounded-2xl border border-gray-100 p-8 shadow-lg hover:shadow-xl hover:shadow-pink-100 transition-all duration-300 flex flex-col h-full items-stretch">
-        <div className="absolute top-0 inset-x-0 h-2 bg-gray-200 rounded-t-2xl"></div>
-        <h3 className="text-xl font-bold text-gray-900 mb-2">{pkg.name}</h3>
-        <div className="flex items-baseline gap-1 mb-2">
-          <span className="text-4xl font-black text-gray-900">
-            {formatCurrency(pkg.price)}
-          </span>
+  };
+
+  return (
+    <section className="pt-15 pb-20 bg-white relative overflow-hidden" id="layanan">
+      {/* Decorative Background */}
+      <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-pink-50 rounded-full blur-3xl -z-10 opacity-50 translate-x-1/2 -translate-y-1/2"></div>
+      
+      <div className="max-w-7xl mx-auto lg:px-8">
+        <div className="text-center mb-16 px-4">
+          <span className="text-accent font-bold tracking-widest text-sm uppercase mb-3 block">Service Selection</span>
+          <h2 className="text-4xl md:text-5xl font-black text-[#1d0c12] mb-6 tracking-tighter">PILIH JASA JOKIMU</h2>
+          <p className="text-gray-600 max-w-2xl mx-auto text-lg leading-relaxed">
+            Geser ke samping untuk melihat pilihan paket. Klik kartu untuk melihat detail lengkapnya.
+          </p>
         </div>
-        <p className="text-gray-600 mb-4 flex-grow">{pkg.description}</p>
-        <ul className="space-y-4 mb-8 flex-grow">
-          {features.map((feature, idx) => (
-            <li key={idx} className="flex items-start gap-3 text-sm text-gray-600">
-              <span className="material-symbols-outlined text-accent text-xl shrink-0">{getFeatureIcon(false)}</span>
-              <span>{feature}</span>
-            </li>
-          ))}
-        </ul>
-        <div className="mt-auto">
-          <a
-            href="#contact"
-            className="w-full py-3 px-4 bg-gray-50 hover:bg-gray-100 text-gray-800 font-bold rounded-xl transition-colors border border-gray-200 cursor-pointer inline-block text-center"
-          >
-            Pesan sekarang
-          </a>
-        </div>
+
+        {renderCategory('Paket Joki Utama', packageGroups['Paket'], 'bg-primary')}
+        {renderCategory('Daily Scenario', packageGroups['Daily Scenario'], 'bg-blue-500')}
+        {renderCategory('Layanan Lainnya', packageGroups['Lainnya'], 'bg-green-500')}
       </div>
-    );
-  }
+
+      {/* Bottom Sheet Modal */}
+      <PackageDetailModal 
+        pkg={selectedPackage} 
+        onClose={() => setSelectedPackage(null)} 
+      />
+
+      <style jsx global>{`
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
+    </section>
+  );
 }
 
-// Loading skeleton for pricing cards
-function PricingCardSkeleton() {
+function ServiceCard({ pkg, onShowDetail }: { pkg: PricingPackage, onShowDetail: () => void }) {
+  const { addToCart } = useCart();
+  const [qty, setQty] = useState(1);
+
+  const formatCurrency = (price: string) => {
+    const numericValue = parseFloat(price.replace(/[^\d]/g, ''));
+    return isNaN(numericValue) ? price : new Intl.NumberFormat('id-ID', {
+      style: 'currency', currency: 'IDR', minimumFractionDigits: 0
+    }).format(numericValue);
+  };
+
+  const isScalable = pkg.typesOfServices !== 'Paket';
+
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-8 shadow-lg animate-pulse flex flex-col h-full items-stretch">
-      <div className="h-6 bg-gray-200 rounded w-1/2 mb-4"></div>
-      <div className="h-10 bg-gray-200 rounded w-2/3 mb-6"></div>
-      <div className="space-y-4 mb-8 flex-grow">
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="flex items-center gap-3">
-            <div className="w-5 h-5 bg-gray-200 rounded-full"></div>
-            <div className="h-4 bg-gray-200 rounded flex-1"></div>
+    <div className={`flex-none w-[280px] md:w-[350px] snap-start relative bg-white rounded-3xl transition-all duration-500 flex flex-col border ${
+      pkg.isPopular ? 'border-primary ring-1 ring-primary/20' : 'border-gray-100'
+    }`}>
+      <div className="p-6 md:p-8 flex flex-col flex-grow relative">
+        {pkg.isPopular && (
+          <div className="absolute top-4 right-4 bg-primary text-white text-[9px] font-black px-2 py-0.5 rounded-md z-10">
+            TERLARIS
           </div>
-        ))}
-      </div>
-      <div className="mt-auto">
-        <div className="h-12 bg-gray-200 rounded-xl"></div>
+        )}
+
+        <div className="cursor-pointer" onClick={onShowDetail}>
+          <h4 className={`text-lg md:text-xl font-bold mb-2 pr-16 ${pkg.isPopular ? 'text-primary' : 'text-gray-900'}`}>
+            {pkg.name}
+          </h4>
+          <div className="flex items-baseline gap-1 mb-4">
+            <span className="text-2xl md:text-3xl font-black text-gray-900">{formatCurrency(pkg.price)}</span>
+          </div>
+          <p className="text-gray-500 text-sm mb-2 line-clamp-3 h-15">{pkg.description}</p>
+          <span className="text-primary text-[10px] font-black uppercase tracking-widest block mb-6 hover:underline">
+            Lihat Detail Lengkap
+          </span>
+        </div>
+        
+        <div className="mt-auto">
+          {isScalable && (
+            <div className="flex items-center justify-between bg-gray-50 rounded-2xl p-2 mb-3 border border-gray-100">
+              <span className="text-[10px] font-black text-gray-400 ml-3 tracking-widest uppercase">Jumlah</span>
+              <div className="flex items-center gap-1">
+                <button onClick={() => setQty(Math.max(1, qty - 1))} className="w-10 h-10 flex items-center justify-center bg-white border border-gray-200 rounded-xl text-gray-600 active:scale-90"><span className="material-symbols-outlined text-lg">remove</span></button>
+                <div className="w-10 text-center font-black text-gray-900 text-lg">{qty}</div>
+                <button onClick={() => setQty(qty + 1)} className="w-10 h-10 flex items-center justify-center bg-white border border-gray-200 rounded-xl text-gray-600 active:scale-90"><span className="material-symbols-outlined text-lg">add</span></button>
+              </div>
+            </div>
+          )}
+          <button
+            onClick={() => addToCart({ id: pkg.id, name: pkg.name, price: pkg.price, category: pkg.typesOfServices || 'Lainnya' }, qty)}
+            className={`w-full py-4 px-6 font-bold rounded-2xl transition-all duration-300 ${pkg.isPopular ? 'bg-primary text-white' : 'bg-gray-50 text-gray-800 border border-gray-200'}`}
+          >
+            {pkg.isPopular ? 'Pesan Sekarang' : 'Tambah ke Keranjang'}
+          </button>
+        </div>
       </div>
     </div>
   );
 }
 
-// Fallback static data when Supabase is not configured
-const fallbackPackages: PricingPackage[] = [
-  {
-    id: '1',
-    name: 'Paket Pemula',
-    price: '50000',
-    description: 'Daily Missions, 1x Full Training, No VPN',
-    features: ['Daily Missions Complete', '1x Full Training Run', 'Tanpa VPN (Indo IP)', 'Proses 1-2 Jam'],
-    isPopular: false,
-    isActive: true,
-    createdAt: new Date(),
-  },
-  {
-    id: '2',
-    name: 'Paket Sultan',
-    price: '250000',
-    description: 'Full Event Clear, High Stats (UE/UD), Bonus Items',
-    features: [
-      'Full Event Clear (1M Pts)', 
-      'High Stats Guarantee (UE/UD)', 
-      'Bonus Items Farming', 
-      'Proses 2-3 Hari', 
-      'Live Stream (Optional)'
-    ],
-    isPopular: true,
-    isActive: true,
-    createdAt: new Date(),
-  },
-  {
-    id: '3',
-    name: 'Paket Custom',
-    price: '100000',
-    description: 'Specific Trophy, Factor Farming, PvP Config',
-    features: ['Specific Race Trophy', 'Factor Farming (White/Blue)', 'PvP / Champions Meeting', 'Waktu Menyesuaikan'],
-    isPopular: false,
-    isActive: true,
-    createdAt: new Date(),
-  },
-];
+function PackageDetailModal({ pkg, onClose }: { pkg: PricingPackage | null, onClose: () => void }) {
+  const touchStartY = useRef(0);
+  const [offsetY, setOffsetY] = useState(0);
 
-export default function Services() {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isMobileView, setIsMobileView] = useState(false);
-  const carouselRef = useRef<HTMLDivElement>(null);
-  const { data: packages, isLoading, error } = usePricingPackages();
-
-  // Use fallback data if no data or error
-  const displayPackages = packages && packages.length > 0 ? packages : fallbackPackages;
-
-  // Check if we're in mobile view
-  useEffect(() => {
-    const checkMobileView = () => {
-      setIsMobileView(window.innerWidth < 640);
-    };
-
-    checkMobileView();
-    
-    const handleResize = () => {
-      checkMobileView();
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // Calculate number of slides based on view type with responsive itemsPerPage
-  const itemsPerPage = isMobileView ? 1 : 3;
-  const totalPages = Math.ceil(displayPackages.length / itemsPerPage);
-
-  // Handle next slide
-  const nextSlide = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === totalPages - 1 ? 0 : prevIndex + 1
-    );
-  };
-
-  // Handle previous slide
-  const prevSlide = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? totalPages - 1 : prevIndex - 1
-    );
-  };
-
-  // Handle dot click with smooth scrolling
-  const goToSlide = (index: number) => {
-    if (isMobileView && carouselRef.current) {
-      const carousel = carouselRef.current;
-      const cardWidth = carousel.scrollWidth / displayPackages.length; // Average card width
-      const targetScrollPosition = index * cardWidth;
-      
-      carousel.scrollTo({
-        left: targetScrollPosition,
-        behavior: 'smooth'
-      });
+  // Lock scroll when modal is open
+  React.useEffect(() => {
+    if (pkg) {
+      document.body.style.overflow = 'hidden';
     } else {
-      // For desktop, update the current index to the slide number
-      setCurrentIndex(index);
+      document.body.style.overflow = 'unset';
     }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [pkg]);
+
+  if (!pkg) return null;
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartY.current = e.targetTouches[0].clientY;
   };
 
-  // Handle scroll event to sync currentIndex with scroll position
-  const handleScroll = () => {
-    if (isMobileView && carouselRef.current) {
-      const carousel = carouselRef.current;
-      const scrollLeft = carousel.scrollLeft;
-      const scrollWidth = carousel.scrollWidth;
-      const cardWidth = scrollWidth / displayPackages.length; // Average card width
-      
-      // Calculate the current index based on scroll position
-      const newIndex = Math.round(scrollLeft / cardWidth);
-      
-      // Prevent infinite updates by checking if index actually changed
-      if (newIndex !== currentIndex && newIndex >= 0 && newIndex < displayPackages.length) {
-        setCurrentIndex(newIndex);
-      }
-    }
+  const handleTouchMove = (e: React.TouchEvent) => {
+    const currentY = e.targetTouches[0].clientY;
+    const diff = currentY - touchStartY.current;
+    if (diff > 0) setOffsetY(diff); // Only allow swiping down
   };
-  
+
+  const handleTouchEnd = () => {
+    if (offsetY > 100) {
+      onClose();
+    }
+    setOffsetY(0);
+  };
+
+  const formatCurrency = (price: string) => {
+    const numericValue = parseFloat(price.replace(/[^\d]/g, ''));
+    return isNaN(numericValue) ? price : new Intl.NumberFormat('id-ID', {
+      style: 'currency', currency: 'IDR', minimumFractionDigits: 0
+    }).format(numericValue);
+  };
 
   return (
-    <section className="py-20 bg-white relative" id="layanan">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-black text-[#1d0c12] mb-4">DAFTAR HARGA JOKI</h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">Pilih paket yang kamu butuhkan untuk merawat akunmu. Dengan sistem Add-on, kamu bisa tambah event lain selama event berlangsung</p>
-        </div>
+    <div className="fixed inset-0 z-[100] flex items-end justify-center sm:items-center p-0 sm:p-4">
+      {/* Backdrop */}
+      <div 
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300" 
+        onClick={onClose}
+      ></div>
+      
+      {/* Bottom Sheet Content */}
+      <div 
+        className="relative w-full max-w-lg bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] p-8 shadow-2xl max-h-[90vh] overflow-y-auto transition-transform duration-300 ease-out animate-slide-up"
+        style={{ transform: `translateY(${offsetY}px)` }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        {/* Swipe Handle (Center Bar) */}
+        <div className="w-16 h-1.5 bg-gray-200 rounded-full mx-auto mb-8 cursor-grab active:cursor-grabbing"></div>
         
-        <div className="relative px-4 md:px-8 lg:px-12">
-          <div className="overflow-hidden py-8">
-            {/* Navigation buttons - hidden on mobile, shown on desktop */}
-            {!isMobileView && (
-              <>
-                <button
-                  onClick={prevSlide}
-                  className="absolute left-0 top-1/2 -translate-y-1/2 -left-10 z-10 bg-white rounded-full p-3 shadow-lg hover:scale-105 transition-transform duration-300 focus:outline-none"
-                  aria-label="Previous slide"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
+        <div className="mb-6">
+          <h3 className="text-2xl font-black text-gray-900 leading-tight mb-2">{pkg.name}</h3>
+          {pkg.isPopular && <span className="inline-block bg-primary/10 text-primary text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">Pilihan Terlaris</span>}
+        </div>
 
-                <button
-                  onClick={nextSlide}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 -right-10 z-10 bg-white rounded-full p-3 shadow-lg hover:scale-105 transition-transform duration-300 focus:outline-none"
-                  aria-label="Next slide"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-              </>
-            )}
-            
-            {/* Slides container */}
-            {isMobileView ? (
-              // Mobile view: Horizontal scroll with snap
-              <div 
-                ref={carouselRef}
-                onScroll={handleScroll}
-                className="hide-scrollbar smooth-touch-scroll flex overflow-x-auto py-4 snap-x snap-mandatory" 
-                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-              >
-                {isLoading ? (
-                  Array.from({ length: 3 }).map((_, idx) => (
-                    <div key={idx} className="snap-center flex-shrink-0 w-[85vw] mx-2">
-                      <PricingCardSkeleton />
-                    </div>
-                  ))
-                ) : error ? (
-                  // Show fallback on error
-                  displayPackages.map((pkg) => (
-                    <div key={pkg.id} className="snap-center flex-shrink-0 w-[85vw] mx-2">
-                      <PricingCard pkg={pkg} isPopular={pkg.isPopular || false} />
-                    </div>
-                  ))
-                ) : (
-                  displayPackages.map((pkg, index) => (
-                    <div key={pkg.id} className="snap-center flex-shrink-0 w-[85vw] mx-2" data-index={index}>
-                      <PricingCard pkg={pkg} isPopular={pkg.isPopular || false} />
-                    </div>
-                  ))
-                )}
-              </div>
-            ) : (
-              // Desktop view: Traditional slider
-              <div className="flex transition-transform duration-500 ease-in-out"
-                   style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
-                {isLoading ? (
-                  <div className="flex w-full">
-                    {Array.from({ length: 3 }).map((_, idx) => (
-                      <div key={idx} className="w-1/3 px-4 flex-shrink-0 h-full">
-                        <PricingCardSkeleton />
-                      </div>
-                    ))}
-                  </div>
-                ) : error ? (
-                  // Show fallback on error
-                  <div className="flex w-full">
-                    {displayPackages.map((pkg, idx) => (
-                      <div key={pkg.id} className="w-1/3 px-4 flex-shrink-0 h-full items-stretch">
-                        <PricingCard pkg={pkg} isPopular={pkg.isPopular || false} />
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <>
-                    {Array.from({ length: totalPages }).map((_, slideIndex) => (
-                      <div
-                        key={slideIndex}
-                        className="flex w-full min-w-full"
-                      >
-                        {displayPackages
-                          .slice(slideIndex * itemsPerPage, (slideIndex + 1) * itemsPerPage)
-                          .map((pkg) => (
-                            <div key={pkg.id} className="w-1/3 px-4 flex-shrink-0 h-full items-stretch">
-                              <PricingCard pkg={pkg} isPopular={pkg.isPopular || false} />
-                            </div>
-                          ))}
-                      </div>
-                    ))}
-                  </>
-                )}
-              </div>
-            )}
-          </div>
-          
-          {/* Pagination dots - show on both mobile and desktop */}
-          <div className="flex justify-center mt-8 space-x-2">
-            {Array.from({ length: totalPages }).map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => goToSlide(idx)}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                  idx === currentIndex ? 'bg-primary scale-125' : 'bg-gray-300'
-                }`}
-                aria-label={`Go to slide ${idx + 1}`}
-              />
-            ))}
+        <div className=" pb-8 border-b border-gray-50">
+          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Harga Layanan</p>
+          <div className="text-3xl font-black text-primary">{formatCurrency(pkg.price)}</div>
+        </div>
+
+        <div className="mb-6">
+          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Informasi Layanan</p>
+          <div className="text-gray-600 leading-relaxed text-lg whitespace-pre-wrap font-medium">
+            {pkg.description}
           </div>
         </div>
       </div>
-    </section>
+
+      <style jsx>{`
+        @keyframes slide-up {
+          from { transform: translateY(100%); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        .animate-slide-up { animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+      `}</style>
+    </div>
+  );
+}
+
+function SkeletonCard() {
+  return (
+    <div className="flex-none w-[280px] md:w-[350px] bg-white rounded-3xl border border-gray-100 overflow-hidden animate-pulse shadow-sm">
+      <div className="p-6 md:p-8">
+        <div className="h-6 bg-gray-100 rounded w-2/3 mb-4"></div>
+        <div className="h-10 bg-gray-100 rounded w-full mb-6"></div>
+        <div className="h-20 bg-gray-50 rounded-2xl w-full mb-8"></div>
+        <div className="h-14 bg-gray-100 rounded-2xl w-full"></div>
+      </div>
+    </div>
   );
 }
