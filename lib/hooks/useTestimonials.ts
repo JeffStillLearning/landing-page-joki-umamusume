@@ -18,26 +18,30 @@ function mapToTestimonial(row: any): Testimonial {
   };
 }
 
+// Fetch all testimonials function for prefetching
+export const fetchTestimonials = async (): Promise<Testimonial[]> => {
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+  const { data, error } = await supabase
+    .from('testimonials')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return (data || []).map(mapToTestimonial);
+};
+
 // Fetch all testimonials
 export function useTestimonials() {
   return useQuery({
     queryKey: QUERY_KEY,
-    queryFn: async (): Promise<Testimonial[]> => {
-      const supabase = createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      );
-      const { data, error } = await supabase
-        .from('testimonials')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      return (data || []).map(mapToTestimonial);
-    },
+    queryFn: fetchTestimonials,
+    staleTime: 5 * 60 * 1000,
   });
 }
 

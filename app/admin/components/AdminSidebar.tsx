@@ -3,10 +3,17 @@
 import React from 'react';
 import { createBrowserClient } from '@supabase/ssr';
 import { useRouter, usePathname } from 'next/navigation';
+import Link from 'next/link';
+import { useQueryClient } from '@tanstack/react-query';
+import { fetchAllPricingPackages } from '@/lib/hooks/usePricingPackages';
+import { fetchAllGameEvents } from '@/lib/hooks/useGameEvents';
+import { fetchTestimonials } from '@/lib/hooks/useTestimonials';
+import { fetchOrders } from '@/lib/hooks/useOrders';
 
 export default function AdminSidebar() {
   const router = useRouter();
   const pathname = usePathname();
+  const queryClient = useQueryClient();
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -20,35 +27,59 @@ export default function AdminSidebar() {
     }
   };
 
+  const prefetchDashboard = () => {
+    queryClient.prefetchQuery({
+      queryKey: ['pricing-packages', 'admin'],
+      queryFn: fetchAllPricingPackages,
+    });
+    queryClient.prefetchQuery({
+      queryKey: ['game-events', 'admin'],
+      queryFn: fetchAllGameEvents,
+    });
+    queryClient.prefetchQuery({
+      queryKey: ['testimonials'],
+      queryFn: fetchTestimonials,
+    });
+  };
+
+  const prefetchOrders = () => {
+    queryClient.prefetchQuery({
+      queryKey: ['orders'],
+      queryFn: fetchOrders,
+    });
+  };
+
   return (
     <aside className="w-64 bg-white border-r border-pink-100 flex flex-col h-full shrink-0 z-20">
       <div className="h-16 flex items-center px-6 border-b border-pink-50">
-        <a href="/" className="flex items-center gap-2 text-primary font-bold text-lg hover:opacity-80 transition-opacity">
+        <Link href="/" className="flex items-center gap-2 text-primary font-bold text-lg hover:opacity-80 transition-opacity">
           <span className="material-symbols-outlined text-2xl">trophy</span>
           Joki Uma Admin
-        </a>
+        </Link>
       </div>
 
       <nav className="p-4 space-y-1 flex-1 overflow-y-auto">
-        <a 
+        <Link 
           className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors font-medium ${
             pathname === '/admin/dashboard' ? 'bg-pink-50 text-primary' : 'text-slate-500 hover:bg-pink-50 hover:text-primary'
           }`} 
           href="/admin/dashboard"
+          onMouseEnter={prefetchDashboard}
         >
           <span className="material-symbols-outlined text-[22px]">dashboard</span>
           <span>Dashboard</span>
-        </a>
+        </Link>
         
-        <a 
+        <Link 
           className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors font-medium ${
             pathname === '/admin/pesanan' ? 'bg-pink-50 text-primary' : 'text-slate-500 hover:bg-pink-50 hover:text-primary'
           }`} 
           href="/admin/pesanan"
+          onMouseEnter={prefetchOrders}
         >
           <span className="material-symbols-outlined text-[22px]">shopping_cart</span>
           <span>Pesanan</span>
-        </a>
+        </Link>
       </nav>
 
       <div className="p-4 border-t border-pink-50">

@@ -16,51 +16,53 @@ export interface OrderWithDetails extends Order {
   }>;
 }
 
+export const fetchOrders = async () => {
+  // OPTIMASI: Gunakan JOIN untuk mengambil semua data dalam SATU request
+  const { data: rawOrders, error: ordersError } = await supabase
+    .from('orders')
+    .select(`
+      *,
+      order_items (*),
+      order_progress (*)
+    `)
+    .order('created_at', { ascending: false });
+
+  if (ordersError) {
+    console.error('Supabase fetch error:', ordersError);
+    throw ordersError;
+  }
+
+  if (!rawOrders) return [];
+
+  // Mapping data dari snake_case ke camelCase
+  return rawOrders.map((order: any) => ({
+    id: order.id,
+    orderId: order.order_id,
+    customerName: order.customer_name,
+    customerContact: order.customer_contact,
+    status: order.status,
+    totalPrice: order.total_price,
+    note: order.note,
+    createdAt: order.created_at,
+    items: order.order_items || [],
+    progress: (order.order_progress || [])
+      .sort((a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+      .map((p: any) => ({
+        id: p.id,
+        orderId: p.order_id,
+        title: p.title,
+        isDone: p.is_done, // MAPPING PENTING: is_done -> isDone
+        note: p.note,
+        createdAt: p.created_at
+      }))
+  })) as OrderWithDetails[];
+};
+
 export function useOrders() {
   return useQuery({
     queryKey: ['orders'],
-    queryFn: async () => {
-      // OPTIMASI: Gunakan JOIN untuk mengambil semua data dalam SATU request
-      const { data: rawOrders, error: ordersError } = await supabase
-        .from('orders')
-        .select(`
-          *,
-          order_items (*),
-          order_progress (*)
-        `)
-        .order('created_at', { ascending: false });
-
-      if (ordersError) {
-        console.error('Supabase fetch error:', ordersError);
-        throw ordersError;
-      }
-
-      if (!rawOrders) return [];
-
-      // Mapping data dari snake_case ke camelCase
-      return rawOrders.map((order: any) => ({
-        id: order.id,
-        orderId: order.order_id,
-        customerName: order.customer_name,
-        customerContact: order.customer_contact,
-        status: order.status,
-        totalPrice: order.total_price,
-        note: order.note,
-        createdAt: order.created_at,
-        items: order.order_items || [],
-        progress: (order.order_progress || [])
-          .sort((a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
-          .map((p: any) => ({
-            id: p.id,
-            orderId: p.order_id,
-            title: p.title,
-            isDone: p.is_done, // MAPPING PENTING: is_done -> isDone
-            note: p.note,
-            createdAt: p.created_at
-          }))
-      })) as OrderWithDetails[];
-    },
-    staleTime: 30 * 1000, // Data dianggap segar selama 30 detik (mengurangi loading berulang)
+    queryFn: fetchOrders,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }
 

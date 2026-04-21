@@ -22,27 +22,49 @@ function mapToGameEvent(row: any): GameEvent {
   };
 }
 
+// Fetch all active game events function for prefetching
+export const fetchGameEvents = async (): Promise<GameEvent[]> => {
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+  const { data, error } = await supabase
+    .from('game_events')
+    .select('*')
+    .eq('status', 'active')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return (data || []).map(mapToGameEvent);
+};
+
+// Fetch all game events for admin function for prefetching
+export const fetchAllGameEvents = async (): Promise<GameEvent[]> => {
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+  const { data, error } = await supabase
+    .from('game_events')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return (data || []).map(mapToGameEvent);
+};
+
 // Fetch all active game events
 export function useGameEvents() {
   return useQuery({
     queryKey: QUERY_KEY,
-    queryFn: async (): Promise<GameEvent[]> => {
-      const supabase = createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      );
-      const { data, error } = await supabase
-        .from('game_events')
-        .select('*')
-        .eq('status', 'active')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      return (data || []).map(mapToGameEvent);
-    },
+    queryFn: fetchGameEvents,
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -50,22 +72,8 @@ export function useGameEvents() {
 export function useAllGameEvents() {
   return useQuery({
     queryKey: [...QUERY_KEY, 'admin'],
-    queryFn: async (): Promise<GameEvent[]> => {
-      const supabase = createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      );
-      const { data, error } = await supabase
-        .from('game_events')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      return (data || []).map(mapToGameEvent);
-    },
+    queryFn: fetchAllGameEvents,
+    staleTime: 5 * 60 * 1000,
   });
 }
 

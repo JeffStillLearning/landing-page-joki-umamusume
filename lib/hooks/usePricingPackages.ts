@@ -22,27 +22,49 @@ function mapToPricingPackage(row: any): PricingPackage {
   };
 }
 
+// Fetch all pricing packages function for prefetching
+export const fetchPricingPackages = async (): Promise<PricingPackage[]> => {
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+  const { data, error } = await supabase
+    .from('pricing_packages')
+    .select('*')
+    .eq('is_active', true)
+    .order('created_at', { ascending: true });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return (data || []).map(mapToPricingPackage);
+};
+
+// Fetch all pricing packages for admin (including inactive)
+export const fetchAllPricingPackages = async (): Promise<PricingPackage[]> => {
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+  const { data, error } = await supabase
+    .from('pricing_packages')
+    .select('*')
+    .order('created_at', { ascending: true });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return (data || []).map(mapToPricingPackage);
+};
+
 // Fetch all pricing packages
 export function usePricingPackages() {
   return useQuery({
     queryKey: QUERY_KEY,
-    queryFn: async (): Promise<PricingPackage[]> => {
-      const supabase = createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      );
-      const { data, error } = await supabase
-        .from('pricing_packages')
-        .select('*')
-        .eq('is_active', true)
-        .order('created_at', { ascending: true });
-
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      return (data || []).map(mapToPricingPackage);
-    },
+    queryFn: fetchPricingPackages,
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -50,22 +72,8 @@ export function usePricingPackages() {
 export function useAllPricingPackages() {
   return useQuery({
     queryKey: [...QUERY_KEY, 'admin'],
-    queryFn: async (): Promise<PricingPackage[]> => {
-      const supabase = createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      );
-      const { data, error } = await supabase
-        .from('pricing_packages')
-        .select('*')
-        .order('created_at', { ascending: true });
-
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      return (data || []).map(mapToPricingPackage);
-    },
+    queryFn: fetchAllPricingPackages,
+    staleTime: 5 * 60 * 1000,
   });
 }
 
