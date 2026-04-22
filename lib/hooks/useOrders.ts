@@ -46,7 +46,16 @@ export const fetchOrders = async () => {
     createdAt: order.created_at,
     items: order.order_items || [],
     progress: (order.order_progress || [])
-      .sort((a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+      .sort((a: any, b: any) => {
+        const dateA = new Date(a.created_at).getTime();
+        const dateB = new Date(b.created_at).getTime();
+        if (dateA !== dateB) return dateA - dateB;
+        
+        // Fallback: urutkan berdasarkan angka di akhir title agar stabil (misal: "Daily 1")
+        const numA = parseInt(a.title.split(' ').pop()) || 0;
+        const numB = parseInt(b.title.split(' ').pop()) || 0;
+        return numA - numB;
+      })
       .map((p: any) => ({
         id: p.id,
         orderId: p.order_id,
@@ -120,9 +129,99 @@ export function useUpdateOrderProgress() {
       if (error) throw error;
       return data;
     },
-    onSuccess: (updatedData) => {
+    onSuccess: () => {
       // Optimistic update atau invalidate untuk memastikan UI sinkron
       queryClient.invalidateQueries({ queryKey: ['orders'] });
     },
+  });
+}
+
+export function useBatchCreateOrderProgress() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ orderId, items }: { orderId: string; items: { title: string; is_done: boolean }[] }) => {
+      const { data, error } = await supabase
+        .from('order_progress')
+        .insert(items.map(item => ({ order_id: orderId, ...item })))
+        .select();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+    },
+  });
+}
+
+export function useDeleteOrderProgress() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, orderId }: { id?: string; orderId?: string }) => {
+      let query = supabase.from('order_progress').delete();
+      
+      if (id) {
+        query = query.eq('id', id);
+      } else if (orderId) {
+        query = query.eq('order_id', orderId);
+      } else {
+        throw new Error('id or orderId must be provided');
+      }
+
+      const { error } = await query;
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+    },
+  });
+}
+
+export const fetchOrderByOrderId = async (orderId: string) => {
+  const { data: order, error } = await supabase
+    .from('orders')
+    .select(`
+      *,
+      order_progress (*)
+    `)
+    .eq('order_id', orderId)
+    .single();
+
+  if (error) throw error;
+  if (!order) return null;
+
+  return {
+    id: order.id,
+    orderId: order.order_id,
+    customerName: order.customer_name,
+    status: order.status,
+    progress: (order.order_progress || [])
+      .sort((a: any, b: any) => {
+        const dateA = new Date(a.created_at).getTime();
+        const dateB = new Date(b.created_at).getTime();
+        if (dateA !== dateB) return dateA - dateB;
+        
+        // Fallback: urutkan berdasarkan angka di akhir title agar stabil (misal: "Daily 1")
+        const numA = parseInt(a.title.split(' ').pop()) || 0;
+        const numB = parseInt(b.title.split(' ').pop()) || 0;
+        return numA - numB;
+      })
+      .map((p: any) => ({
+        id: p.id,
+        title: p.title,
+        isDone: p.is_done,
+        createdAt: p.created_at
+      }))
+  };
+};
+
+export function useTrackOrder(orderId: string | null) {
+  return useQuery({
+    queryKey: ['track-order', orderId],
+    queryFn: () => orderId ? fetchOrderByOrderId(orderId) : null,
+    enabled: !!orderId,
+    retry: false
   });
 }

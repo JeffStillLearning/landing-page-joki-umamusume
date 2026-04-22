@@ -197,7 +197,7 @@ export default function PesananPage() {
                     </td>
                     <td className="px-6 py-5">
                       <div className="font-black text-primary text-[15px]">
-                        Rp {order.totalPrice?.toLocaleString()}
+                        Rp {order.totalPrice?.toLocaleString("id-ID")}
                       </div>
                     </td>
                     <td className="px-6 py-5">

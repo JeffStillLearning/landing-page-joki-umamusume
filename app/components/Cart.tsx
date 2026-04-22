@@ -197,7 +197,7 @@ export function Cart() {
         className={`fixed top-0 right-0 z-[70] h-full w-full sm:w-96 bg-white shadow-2xl transition-transform duration-500 ease-in-out transform ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
       >
         <div className="flex flex-col h-full">
-          <div className="p-6 border-b border-gray-100 flex items-center gap-4">
+          <div className="p-6 border-b border-gray-100 flex items-center">
             <button 
               onClick={handleHeaderBack}
               className="p-2 -ml-2 hover:bg-gray-100 rounded-full transition-colors flex items-center justify-center text-gray-500"
@@ -205,9 +205,7 @@ export function Cart() {
               <span className="material-symbols-outlined !text-2xl">arrow_back</span>
             </button>
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary">
-                {step === 'cart' ? 'shopping_cart' : step === 'form' ? 'person' : 'check_circle'}
-              </span>
+              
               <h2 className="text-xl font-bold text-gray-900">
                 {step === 'cart' ? 'Keranjang Kamu' : step === 'form' ? 'Data Pengguna' : 'Pesanan Berhasil'}
               </h2>
@@ -248,20 +246,20 @@ export function Cart() {
               <div className="p-6">
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-gray-700 ml-1">Nama Anda *</label>
-                    <input type="text" name="name" required value={formData.name} onChange={handleInputChange} placeholder="Masukkan nama (A-Z saja)" className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium" />
+                    <label className="text-sm font-bold text-gray-700 ml-1">Nama</label>
+                    <input type="text" name="name" required value={formData.name} onChange={handleInputChange} placeholder="Masukkan nama" className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium" />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-gray-700 ml-1">Nomor WhatsApp *</label>
-                    <input type="tel" name="whatsapp" required value={formData.whatsapp} onChange={handleInputChange} placeholder="Masukkan nomor (0-9 saja)" className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium" />
+                    <label className="text-sm font-bold text-gray-700 ml-1">Nomor WhatsApp</label>
+                    <input type="tel" name="whatsapp" required value={formData.whatsapp} onChange={handleInputChange} placeholder="08123456789" className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-gray-700 ml-1">Catatan (opsional)</label>
-                    <textarea name="note" value={formData.note} onChange={handleInputChange} placeholder="Jelaskan detail yang diinginkan" rows={4} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium resize-none" />
+                    <textarea name="note" value={formData.note} onChange={handleInputChange} placeholder="Jelaskan detail jika memilih training uma" rows={4} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium resize-none" />
                   </div>
                   <div className="pt-4">
                     <button type="submit" disabled={isSubmitting || !formData.name || !formData.whatsapp} className={`w-full py-4 px-6 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 ${isSubmitting || !formData.name || !formData.whatsapp ? 'bg-gray-200 text-gray-400' : 'bg-primary text-white hover:bg-primary-dark shadow-lg shadow-pink-200'}`}>
-                      {isSubmitting ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span> : <><span>Pesan Sekarang</span><span className="material-symbols-outlined">send</span></>}
+                      {isSubmitting ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span> : <><span>Pesan Sekarang</span></>}
                     </button>
                   </div>
                 </form>
@@ -269,12 +267,12 @@ export function Cart() {
             )}
 
             {step === 'success' && (
-              <div className="p-6 h-full flex flex-col items-center justify-center text-center animate-fade-in">
+              <div className="p-6 flex flex-col items-center justify-center text-center animate-fade-in">
                 <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-6">
                   <span className="material-symbols-outlined text-green-500 !text-5xl font-bold">check</span>
                 </div>
                 <h3 className="text-2xl font-black text-gray-900 mb-2">Pesanan berhasil dibuat!</h3>
-                <p className="text-gray-500 mb-8 font-medium">Data Anda telah kami terima.</p>
+                
                 <div className="w-full bg-gray-50 rounded-2xl p-6 border border-dashed border-gray-200 mb-8">
                   <p className="text-[10px] uppercase tracking-widest font-black text-gray-400 mb-2">Order ID Kamu</p>
                   <p className="text-3xl font-black text-primary tracking-tighter mb-4">{orderId}</p>
@@ -283,7 +281,7 @@ export function Cart() {
                   <a href={getWhatsAppUrl()} target="_blank" rel="noopener noreferrer" className="w-full py-4 px-6 bg-[#25D366] text-white rounded-2xl font-bold hover:bg-[#128C7E] transition-all flex items-center justify-center gap-2 shadow-lg shadow-green-100">
                     <span className="material-symbols-outlined">chat</span>Lanjut ke WhatsApp
                   </a>
-                  <button onClick={resetCartUI} className="w-full py-4 px-6 text-gray-400 font-bold hover:text-gray-600 transition-all">Tutup</button>
+                  
                 </div>
               </div>
             )}
@@ -292,13 +290,13 @@ export function Cart() {
           {step === 'cart' && items.length > 0 && (
             <div className="p-6 border-t border-gray-100 bg-gray-50">
               <div className="flex items-center justify-between mb-6">
-                <span className="text-gray-500 font-medium">Total Estimasi:</span>
+                <span className="text-gray-500 font-medium">Total Pesanan:</span>
                 <span className="text-2xl font-black text-gray-900">{formatCurrency(totalPrice)}</span>
               </div>
               <button onClick={handleNextStep} className="w-full py-4 px-6 rounded-2xl bg-primary text-white font-bold hover:bg-primary-dark transition-all flex items-center justify-center gap-2 shadow-lg shadow-pink-200">
                 <span>Lanjutkan ke Pesanan</span><span className="material-symbols-outlined">arrow_forward</span>
               </button>
-              <p className="text-center text-[10px] text-gray-400 mt-4 uppercase tracking-widest font-bold">Finalisasi pesanan akan dilakukan via WhatsApp</p>
+              
             </div>
           )}
         </div>

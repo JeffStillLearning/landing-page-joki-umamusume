@@ -23,16 +23,17 @@ export function Providers({ children }: { children: ReactNode }) {
       })
   );
 
-  // Check if current path is an admin page
+  // Check if current path is an admin page or track page
   const isAdminPage = pathname?.startsWith('/admin');
+  const isTrackPage = pathname === '/track';
 
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <CartProvider>
           {children}
-          {/* Only show Cart overlay on non-admin pages */}
-          {!isAdminPage && <Cart />}
+          {/* Only show Cart overlay on non-admin and non-track pages */}
+          {!isAdminPage && !isTrackPage && <Cart />}
         </CartProvider>
       </ThemeProvider>
     </QueryClientProvider>

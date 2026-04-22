@@ -80,6 +80,17 @@ export default function AdminSidebar() {
           <span className="material-symbols-outlined text-[22px]">shopping_cart</span>
           <span>Pesanan</span>
         </Link>
+
+        <Link 
+          className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors font-medium ${
+            pathname === '/admin/proses' ? 'bg-pink-50 text-primary' : 'text-slate-500 hover:bg-pink-50 hover:text-primary'
+          }`} 
+          href="/admin/proses"
+          onMouseEnter={prefetchOrders}
+        >
+          <span className="material-symbols-outlined text-[22px]">shopping_cart_checkout</span>
+          <span>Pengerjaan</span>
+        </Link>
       </nav>
 
       <div className="p-4 border-t border-pink-50">

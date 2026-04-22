@@ -35,7 +35,11 @@ export default function Navbar() {
           </div>
 
           {/* SISI KANAN: Penyeimbang / Mobile Menu Button */}
-          <div className="flex-1 flex justify-end">
+          <div className="flex-1 flex justify-end items-center gap-4">
+            <a className="hidden md:flex items-center gap-1 text-sm font-bold text-primary hover:opacity-80 transition-opacity" href="/track">
+              <span className="material-symbols-outlined text-[18px]">search</span>
+              Cek Pesanan
+            </a>
             <div className="md:hidden flex items-center">
               <button 
                 className="text-gray-700 hover:text-primary p-2 focus:outline-none"
@@ -82,6 +86,14 @@ export default function Navbar() {
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Testimoni
+            </a>
+            <a 
+              className="block px-3 py-3 rounded-md text-base font-bold text-primary hover:bg-pink-50 transition-colors flex items-center gap-2" 
+              href="/track"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <span className="material-symbols-outlined text-[20px]">search</span>
+              Cek Pesanan
             </a>
           </div>
         </div>
