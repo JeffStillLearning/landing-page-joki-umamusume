@@ -142,7 +142,7 @@ export default function TrackOrderPage() {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
-                    {order.progress.map((step, index) => (
+                    {order.progress.map((step: { id: string | number; isDone: boolean; title: string }, index: number) => (
                       <div 
                         key={step.id}
                         className={`flex items-center gap-4 p-4 rounded-2xl border-2 transition-all duration-300 ${
