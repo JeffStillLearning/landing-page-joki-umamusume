@@ -18,7 +18,7 @@ export default function TrackOrderPage() {
     }
   };
 
-  const completedCount = order?.progress?.filter(p => p.isDone).length || 0;
+  const completedCount = order?.progress?.filter((p: { isDone: boolean }) => p.isDone).length || 0;
   const totalCount = order?.progress?.length || 0;
   const progressPercent = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 

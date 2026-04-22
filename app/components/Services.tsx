@@ -15,37 +15,6 @@ export default function Services() {
     'Lainnya': packages?.filter(p => !['Paket', 'Daily Scenario'].includes(p.typesOfServices || '')) || []
   };
 
-  const renderCategory = (title: string, items: PricingPackage[], accentColor: string) => {
-    if (!isLoadingPackages && items.length === 0) return null;
-
-    return (
-      <div className="mb-12 last:mb-0">
-        <div className="flex items-center gap-3 mb-6 px-4 sm:px-0">
-          <div className={`w-2 h-8 rounded-full ${accentColor}`}></div>
-          <h3 className="text-2xl font-black text-[#1d0c12] uppercase tracking-tight">{title}</h3>
-          <span className="text-xs font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded-md">
-            {isLoadingPackages ? '...' : items.length} LAYANAN
-          </span>
-        </div>
-
-        {/* Horizontal Scroll Container */}
-        <div className="flex overflow-x-auto pb-6 gap-4 no-scrollbar snap-x px-4 sm:px-0 scroll-pl-4">
-          {isLoadingPackages ? (
-            Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={i} />)
-          ) : (
-            items.map((pkg) => (
-              <ServiceCard 
-                key={pkg.id} 
-                pkg={pkg} 
-                onShowDetail={() => setSelectedPackage(pkg)} 
-              />
-            ))
-          )}
-        </div>
-      </div>
-    );
-  };
-
   return (
     <section className="pt-15 pb-20 bg-white relative overflow-hidden" id="layanan">
       {/* Decorative Background */}
@@ -60,9 +29,27 @@ export default function Services() {
           </p>
         </div>
 
-        {renderCategory('Paket Joki Utama', packageGroups['Paket'], 'bg-primary')}
-        {renderCategory('Daily Scenario', packageGroups['Daily Scenario'], 'bg-blue-500')}
-        {renderCategory('Layanan Lainnya', packageGroups['Lainnya'], 'bg-green-500')}
+        <CategoryRow 
+          title="Paket Joki Utama" 
+          items={packageGroups['Paket']} 
+          accentColor="bg-primary" 
+          isLoading={isLoadingPackages} 
+          onShowDetail={setSelectedPackage} 
+        />
+        <CategoryRow 
+          title="Daily Scenario" 
+          items={packageGroups['Daily Scenario']} 
+          accentColor="bg-blue-500" 
+          isLoading={isLoadingPackages} 
+          onShowDetail={setSelectedPackage} 
+        />
+        <CategoryRow 
+          title="Layanan Lainnya" 
+          items={packageGroups['Lainnya']} 
+          accentColor="bg-green-500" 
+          isLoading={isLoadingPackages} 
+          onShowDetail={setSelectedPackage} 
+        />
       </div>
 
       {/* Bottom Sheet Modal */}
@@ -76,6 +63,75 @@ export default function Services() {
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
     </section>
+  );
+}
+
+function CategoryRow({ title, items, accentColor, isLoading, onShowDetail }: { title: string, items: PricingPackage[], accentColor: string, isLoading: boolean, onShowDetail: (pkg: PricingPackage) => void }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  if (!isLoading && items.length === 0) return null;
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollRef.current) {
+      const { scrollLeft, clientWidth } = scrollRef.current;
+      const scrollAmount = clientWidth * 0.8; // Scroll by 80% of container width
+      scrollRef.current.scrollTo({
+        left: direction === 'left' ? scrollLeft - scrollAmount : scrollLeft + scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  return (
+    <div className="mb-12 last:mb-0 relative group">
+      <div className="flex items-center justify-between mb-6 px-4 sm:px-0">
+        <div className="flex items-center gap-3">
+          <div className={`w-2 h-8 rounded-full ${accentColor}`}></div>
+          <h3 className="text-2xl font-black text-[#1d0c12] uppercase tracking-tight">{title}</h3>
+          <span className="text-xs font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded-md">
+            {isLoading ? '...' : items.length} LAYANAN
+          </span>
+        </div>
+      </div>
+
+      <div className="relative group/nav">
+        {/* Navigation Buttons for PC - Side Positioned */}
+        <div className="hidden md:block">
+          <button 
+            onClick={() => scroll('left')}
+            className="absolute -left-12 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white border-2 border-primary flex items-center justify-center text-gray-800 transition-all active:scale-90 opacity-0 group-hover/nav:opacity-100 -translate-x-2 group-hover/nav:translate-x-0"
+            aria-label="Scroll left"
+          >
+            <span className="material-symbols-outlined font-bold">chevron_left</span>
+          </button>
+          <button 
+            onClick={() => scroll('right')}
+            className="absolute -right-15 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white border-2 border-primary flex items-center justify-center text-gray-800 transition-all active:scale-90 opacity-0 group-hover/nav:opacity-100 translate-x-2 group-hover/nav:translate-x-0"
+            aria-label="Scroll right"
+          >
+            <span className="material-symbols-outlined font-bold">chevron_right</span>
+          </button>
+        </div>
+
+        {/* Horizontal Scroll Container */}
+        <div 
+          ref={scrollRef}
+          className="flex overflow-x-auto pb-6 gap-4 no-scrollbar snap-x px-4 sm:px-0 scroll-pl-4"
+        >
+          {isLoading ? (
+            Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={i} />)
+          ) : (
+            items.map((pkg) => (
+              <ServiceCard 
+                key={pkg.id} 
+                pkg={pkg} 
+                onShowDetail={() => onShowDetail(pkg)} 
+              />
+            ))
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
 
