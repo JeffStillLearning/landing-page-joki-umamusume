@@ -115,6 +115,7 @@ export default function PesananPage() {
               <tr>
                 <th className="px-6 py-5">Order ID</th>
                 <th className="px-6 py-5">Customer Name</th>
+                <th className="px-6 py-5">Paket Joki</th>
                 <th className="px-6 py-5">Contact</th>
                 <th className="px-6 py-5 text-center">Status</th>
                 <th className="px-6 py-5">Total Price</th>
@@ -165,6 +166,16 @@ export default function PesananPage() {
                         {order.customerName}
                       </div>
                     </td>
+                    <td className="px-6 py-5">
+                      <div className="text-slate-700 font-bold text-[13px]">
+                        {order.items?.map(item => 
+                          item.quantity > 1 
+                            ? `${item.packageName} (${item.quantity}x)` 
+                            : item.packageName
+                        ).join(', ') || '-'}
+                      </div>
+                    </td>
+
                     <td className="px-6 py-5">
                       <div className="flex items-center gap-2 text-slate-500 font-medium">
                         {order.customerContact}

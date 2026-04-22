@@ -168,7 +168,7 @@ export function Cart() {
   const getWhatsAppUrl = () => {
     const adminPhone = process.env.NEXT_PUBLIC_ADMIN_WHATSAPP || '6283110123195';
     const packageList = orderedItemsSummary || items.map(item => `- ${item.name} (${item.quantity}x)`).join('\n');
-    const message = `Halo Kak, saya ingin order:\n\nOrder ID: ${orderId}\nNama: ${formData.name}\nPaket:\n${packageList}\nCatatan: ${formData.note || '-'}\n\nTerima kasih!`;
+    const message = `Halo Kak, saya sudah order:\n\nOrder ID: ${orderId}\nNama: ${formData.name}\nPaket:\n${packageList}\nCatatan: ${formData.note || '-'}\n\nTerima kasih!`;
     return `https://wa.me/${adminPhone}?text=${encodeURIComponent(message)}`;
   };
 
@@ -255,7 +255,7 @@ export function Cart() {
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-gray-700 ml-1">Catatan (opsional)</label>
-                    <textarea name="note" value={formData.note} onChange={handleInputChange} placeholder="Jelaskan detail jika memilih training uma" rows={4} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium resize-none" />
+                    <textarea name="note" value={formData.note} onChange={handleInputChange} placeholder="Wajib memberi detail jika memilih training uma seperti uma, distance, style  " rows={4} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium resize-none" />
                   </div>
                   <div className="pt-4">
                     <button type="submit" disabled={isSubmitting || !formData.name || !formData.whatsapp} className={`w-full py-4 px-6 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 ${isSubmitting || !formData.name || !formData.whatsapp ? 'bg-gray-200 text-gray-400' : 'bg-primary text-white hover:bg-primary-dark shadow-lg shadow-pink-200'}`}>

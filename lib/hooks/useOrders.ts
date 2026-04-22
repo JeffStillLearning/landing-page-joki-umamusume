@@ -44,16 +44,33 @@ export const fetchOrders = async () => {
     totalPrice: order.total_price,
     note: order.note,
     createdAt: order.created_at,
-    items: order.order_items || [],
+    items: (order.order_items || []).map((item: any) => ({
+      id: item.id,
+      orderId: item.order_id,
+      packageName: item.package_name,
+      price: item.price,
+      quantity: item.quantity,
+      createdAt: item.created_at
+    })),
     progress: (order.order_progress || [])
       .sort((a: any, b: any) => {
         const dateA = new Date(a.created_at).getTime();
         const dateB = new Date(b.created_at).getTime();
         if (dateA !== dateB) return dateA - dateB;
         
-        // Fallback: urutkan berdasarkan angka di akhir title agar stabil (misal: "Daily 1")
-        const numA = parseInt(a.title.split(' ').pop()) || 0;
-        const numB = parseInt(b.title.split(' ').pop()) || 0;
+        // Extract category (e.g., "Daily") and number (e.g., 1)
+        const partsA = a.title.split(' ');
+        const partsB = b.title.split(' ');
+        
+        const catA = partsA[0];
+        const catB = partsB[0];
+        const numA = parseInt(partsA[partsA.length - 1]) || 0;
+        const numB = parseInt(partsB[partsB.length - 1]) || 0;
+
+        // First sort by category name (Daily comes before Training)
+        if (catA !== catB) return catA.localeCompare(catB);
+        
+        // Then sort by number
         return numA - numB;
       })
       .map((p: any) => ({
@@ -203,9 +220,19 @@ export const fetchOrderByOrderId = async (orderId: string) => {
         const dateB = new Date(b.created_at).getTime();
         if (dateA !== dateB) return dateA - dateB;
         
-        // Fallback: urutkan berdasarkan angka di akhir title agar stabil (misal: "Daily 1")
-        const numA = parseInt(a.title.split(' ').pop()) || 0;
-        const numB = parseInt(b.title.split(' ').pop()) || 0;
+        // Extract category (e.g., "Daily") and number (e.g., 1)
+        const partsA = a.title.split(' ');
+        const partsB = b.title.split(' ');
+        
+        const catA = partsA[0];
+        const catB = partsB[0];
+        const numA = parseInt(partsA[partsA.length - 1]) || 0;
+        const numB = parseInt(partsB[partsB.length - 1]) || 0;
+
+        // First sort by category name (Daily comes before Training)
+        if (catA !== catB) return catA.localeCompare(catB);
+        
+        // Then sort by number
         return numA - numB;
       })
       .map((p: any) => ({

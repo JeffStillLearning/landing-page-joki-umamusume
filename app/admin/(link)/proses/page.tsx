@@ -11,20 +11,36 @@ export default function ProsesPage() {
 
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [category, setCategory] = useState('Daily');
-  const [quantity, setQuantity] = useState(5);
+  const [dailyQuantity, setDailyQuantity] = useState(0);
+  const [trainingQuantity, setTrainingQuantity] = useState(0);
 
   const handleCreateProgress = async () => {
     if (!selectedOrderId) return;
     
-    const items = Array.from({ length: quantity }, (_, i) => ({
-      title: `${category} ${i + 1}`,
-      is_done: false
-    }));
+    const items: { title: string; is_done: boolean }[] = [];
+
+    if (dailyQuantity > 0) {
+      for (let i = 1; i <= dailyQuantity; i++) {
+        items.push({ title: `Daily ${i}`, is_done: false });
+      }
+    }
+
+    if (trainingQuantity > 0) {
+      for (let i = 1; i <= trainingQuantity; i++) {
+        items.push({ title: `Training ${i}`, is_done: false });
+      }
+    }
+
+    if (items.length === 0) {
+      alert('Masukkan setidaknya 1 jumlah untuk Daily atau Training');
+      return;
+    }
 
     try {
       await batchCreateProgress.mutateAsync({ orderId: selectedOrderId, items });
       setShowModal(false);
+      setDailyQuantity(0);
+      setTrainingQuantity(0);
     } catch (error) {
       alert('Gagal membuat progres');
     }
@@ -150,48 +166,54 @@ export default function ProsesPage() {
           <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl animate-in zoom-in-95 duration-200">
             <h3 className="text-xl font-bold text-slate-800 mb-6">Buat Progres Baru</h3>
             
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">Kategori</label>
-                <div className="grid grid-cols-2 gap-3">
-                  {['Daily', 'Training'].map((cat) => (
-                    <button
-                      key={cat}
-                      onClick={() => setCategory(cat)}
-                      className={`py-3 rounded-xl border-2 font-bold transition-all ${
-                        category === cat 
-                          ? 'border-primary bg-primary/5 text-primary' 
-                          : 'border-slate-100 text-slate-500 hover:border-slate-200'
-                      }`}
-                    >
-                      {cat}
-                    </button>
-                  ))}
+            <div className="space-y-6">
+              <div className="space-y-4">
+                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                  <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary text-sm">calendar_today</span>
+                    Jumlah Daily
+                  </label>
+                  <input
+                    type="number"
+                    value={dailyQuantity}
+                    onChange={(e) => setDailyQuantity(Math.max(0, parseInt(e.target.value) || 0))}
+                    min="0"
+                    placeholder="Contoh: 5"
+                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary outline-none transition-all font-bold"
+                  />
+                </div>
+
+                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                  <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary text-sm">fitness_center</span>
+                    Jumlah Training
+                  </label>
+                  <input
+                    type="number"
+                    value={trainingQuantity}
+                    onChange={(e) => setTrainingQuantity(Math.max(0, parseInt(e.target.value) || 0))}
+                    min="0"
+                    placeholder="Contoh: 10"
+                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary outline-none transition-all font-bold"
+                  />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">Jumlah {category}</label>
-                <input
-                  type="number"
-                  value={quantity}
-                  onChange={(e) => setQuantity(parseInt(e.target.value))}
-                  min="1"
-                  className="w-full bg-slate-50 border-0 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary outline-none transition-all"
-                />
-              </div>
-
-              <div className="pt-4 flex gap-3">
+              <div className="pt-2 flex gap-3">
                 <button
-                  onClick={() => setShowModal(false)}
+                  onClick={() => {
+                    setShowModal(false);
+                    setDailyQuantity(0);
+                    setTrainingQuantity(0);
+                  }}
                   className="flex-1 py-3 font-bold text-slate-500 hover:bg-slate-50 rounded-xl transition-colors"
                 >
                   Batal
                 </button>
                 <button
                   onClick={handleCreateProgress}
-                  disabled={batchCreateProgress.isPending}
-                  className="flex-1 py-3 font-bold bg-primary text-white rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/25 disabled:opacity-50"
+                  disabled={batchCreateProgress.isPending || (dailyQuantity === 0 && trainingQuantity === 0)}
+                  className="flex-1 py-3 font-bold bg-primary text-white rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/25 disabled:opacity-50 disabled:shadow-none"
                 >
                   {batchCreateProgress.isPending ? 'Memproses...' : 'Buat Progres'}
                 </button>
