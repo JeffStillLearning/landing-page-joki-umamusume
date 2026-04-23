@@ -17,7 +17,7 @@ export default function Safety() {
               </div>
               {/* Using a gradient div as placeholder for security illustration */}
               <div className="w-full h-full rounded-3xl bg-gradient-to-br from-blue-100 to-pink-100 flex items-center justify-center">
-                <span className="material-symbols-outlined !text-[150px] text-white/80 z-20">security</span>
+                <span className="material-symbols-outlined !text-[100px] md:!text-[150px] text-white/80 z-20">security</span>
               </div>
             </div>
           </div>

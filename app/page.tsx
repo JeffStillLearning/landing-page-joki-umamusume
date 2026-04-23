@@ -26,7 +26,7 @@ export default function Home() {
               
               <div className="relative z-20">
                 <div className="w-10 h-10 md:w-16 md:h-16 bg-primary rounded-xl md:rounded-2xl flex items-center justify-center text-white mb-3 md:mb-6 ">
-                  <span className="material-symbols-outlined !text-5xl md:text-4xl text-white">analytics</span>
+                  <span className="material-symbols-outlined !text-2xl md:!text-5xl text-white">analytics</span>
                 </div>
                 <h3 className="text-sm md:text-3xl font-black text-white mb-1 md:mb-3 uppercase">Joki Utama</h3>
                 <p className="hidden md:block text-white mb-8 leading-relaxed text-[17px]">Daily, Training, Farming Fans untuk merawat akun kamu dan persiapkan champions meeting</p>
@@ -44,7 +44,7 @@ export default function Home() {
               
               <div className="relative z-20">
                 <div className="w-10 h-10 md:w-16 md:h-16 bg-primary rounded-xl md:rounded-2xl flex items-center justify-center text-white mb-3 md:mb-6 ">
-                  <span className="material-symbols-outlined !text-5xl md:text-4xl text-white">event</span>
+                  <span className="material-symbols-outlined !text-2xl md:!text-5xl text-white">event</span>
                 </div>
                 <h3 className="text-sm md:text-3xl font-black text-white mb-1 md:mb-3 uppercase">Event & Extra</h3>
                 <p className="hidden md:block text-white text-[17px] mb-8 leading-relaxed">Legend Race, Champions Meeting, dan event spesial lainnya dengan reward maksimal.</p>
