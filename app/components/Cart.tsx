@@ -275,7 +275,28 @@ export function Cart() {
                 
                 <div className="w-full bg-gray-50 rounded-2xl p-6 border border-dashed border-gray-200 mb-8">
                   <p className="text-[10px] uppercase tracking-widest font-black text-gray-400 mb-2">Order ID Kamu</p>
-                  <p className="text-3xl font-black text-primary tracking-tighter mb-4">{orderId}</p>
+                  <p className="text-4xl font-black text-primary tracking-tighter mb-4">{orderId}</p>
+                  <button 
+                    onClick={() => {
+                      navigator.clipboard.writeText(orderId);
+                      const btn = document.getElementById('copy-btn');
+                      if (btn) {
+                        const originalText = btn.innerHTML;
+                        btn.innerHTML = '<span class="material-symbols-outlined !text-sm">check</span> Disalin';
+                        btn.classList.add('bg-primary', 'text-white');
+                        btn.classList.remove('bg-gray-100', 'text-gray-600');
+                        setTimeout(() => {
+                          btn.innerHTML = originalText;
+                          btn.classList.remove('bg-primary', 'text-white');
+                          btn.classList.add('bg-gray-100', 'text-gray-600');
+                        }, 2000);
+                      }
+                    }}
+                    id="copy-btn"
+                    className="flex items-center gap-2 mx-auto bg-gray-100 text-gray-600 text-[10px] font-black px-4 py-2 rounded-xl uppercase tracking-wider transition-all active:scale-95 border border-gray-200"
+                  >
+                    <span className="material-symbols-outlined !text-sm">content_copy</span> Salin
+                  </button>
                 </div>
                 <div className="space-y-3 w-full">
                   <a href={getWhatsAppUrl()} target="_blank" rel="noopener noreferrer" className="w-full py-4 px-6 bg-[#25D366] text-white rounded-2xl font-bold hover:bg-[#128C7E] transition-all flex items-center justify-center gap-2 shadow-lg shadow-green-100">
