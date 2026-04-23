@@ -28,9 +28,9 @@ export default function Events() {
   return (
     <section className="py-8 bg-gray-50 relative border-y border-pink-50" id="event">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+        <div className="flex flex-col md:flex-row justify-center text-center items-end mb-12 gap-6">
           <div className="max-w-2xl">
-            <span className="text-accent font-bold tracking-widest text-sm uppercase mb-3 block">Special Add-on</span>
+            
             <h2 className="text-4xl md:text-5xl font-black text-[#1d0c12] mb-4">LIMITED EVENT</h2>
             <p className="text-gray-600 text-lg">
               Lengkapi joki utamamu dengan event yang sedang berlangsung atau kustomisasi sesuai kebutuhan akunmu.
@@ -45,13 +45,13 @@ export default function Events() {
             events?.map((event) => (
               <div key={event.id} className="group bg-white rounded-2xl md:rounded-3xl border border-pink-100 overflow-hidden hover:shadow-2xl hover:shadow-pink-100/50 transition-all duration-500 flex flex-col md:flex-row relative">
                 {/* Event Image */}
-                <div className="relative h-48 md:h-auto md:w-80 shrink-0 bg-gray-100 overflow-hidden">
+                <div className="relative aspect-video md:h-auto md:w-[450px] shrink-0 overflow-hidden">
                   {event.cloudinaryId ? (
                     <Image
-                      src={getOptimizedImageUrl(event.cloudinaryId, { width: 600, height: 400, crop: 'fill' })}
+                      src={getOptimizedImageUrl(event.cloudinaryId, { width: 800, height: 600, crop: 'fit' })}
                       alt={event.name}
                       fill
-                      className="object-cover group-hover:scale-110 transition-transform duration-700"
+                      className="object-cover"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-pink-50 text-pink-200">
@@ -108,7 +108,7 @@ export default function Events() {
 function SkeletonCard() {
   return (
     <div className="bg-white rounded-2xl md:rounded-3xl border border-pink-100 overflow-hidden animate-pulse flex flex-col md:flex-row">
-      <div className="h-48 md:h-64 md:w-80 bg-gray-100 shrink-0"></div>
+      <div className="aspect-[16/9] md:h-64 md:w-80 bg-gray-100 shrink-0"></div>
       <div className="p-6 md:p-8 flex-grow">
         <div className="flex flex-col md:flex-row justify-between gap-4 mb-4">
           <div className="flex-grow">

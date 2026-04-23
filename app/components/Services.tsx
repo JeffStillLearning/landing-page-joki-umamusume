@@ -22,10 +22,10 @@ export default function Services() {
       
       <div className="max-w-7xl mx-auto lg:px-8">
         <div className="text-center mb-16 px-4">
-          <span className="text-accent font-bold tracking-widest text-sm uppercase mb-3 block">Service Selection</span>
-          <h2 className="text-4xl md:text-5xl font-black text-[#1d0c12] mb-6 tracking-tighter">PILIH JASA JOKIMU</h2>
+          
+          <h2 className="text-4xl md:text-5xl font-black text-[#1d0c12] mb-6 tracking-tighter">DAFTAR JASA JOKI</h2>
           <p className="text-gray-600 max-w-2xl mx-auto text-lg leading-relaxed">
-            Geser ke samping untuk melihat pilihan paket. Klik kartu untuk melihat detail lengkapnya.
+            Temukan dan pilih berbagai layanan joki mulai dari daily sampai training uma. Percayakan akun kamu pada jasa yang berpengalaman agar proses jauh lebih cepat, efisien dan tanpa ribet
           </p>
         </div>
 
