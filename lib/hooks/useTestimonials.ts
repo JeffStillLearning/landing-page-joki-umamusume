@@ -20,16 +20,25 @@ function mapToTestimonial(row: any): Testimonial {
 
 // Fetch all testimonials function for prefetching
 export const fetchTestimonials = async (): Promise<Testimonial[]> => {
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !anonKey) {
+    throw new Error(
+      'Konfigurasi Supabase tidak ditemukan (NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY).'
+    );
+  }
+
+  const supabase = createBrowserClient(url, anonKey);
   const { data, error } = await supabase
     .from('testimonials')
     .select('*')
     .order('created_at', { ascending: false });
 
   if (error) {
+    // Surface the real cause during development (the UI shows a friendly message).
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('[testimonials] gagal fetch dari Supabase:', error);
+    }
     throw new Error(error.message);
   }
 
@@ -42,6 +51,10 @@ export function useTestimonials() {
     queryKey: QUERY_KEY,
     queryFn: fetchTestimonials,
     staleTime: 5 * 60 * 1000,
+    // This machine can have flaky DNS to *.supabase.co; ride out transient
+    // network failures with a few backed-off retries instead of failing on the first.
+    retry: 3,
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 8000),
   });
 }
 
