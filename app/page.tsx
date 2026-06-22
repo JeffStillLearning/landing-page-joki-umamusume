@@ -16,12 +16,8 @@ export default function Home() {
       <Reveal>
         <ServicePortal />
       </Reveal>
-      <Reveal>
-        <WhyUs />
-      </Reveal>
-      <Reveal>
-        <HowItWorks />
-      </Reveal>
+      <WhyUs />
+      <HowItWorks />
       <Reveal>
         <Safety />
       </Reveal>

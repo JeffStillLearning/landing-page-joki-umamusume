@@ -1,4 +1,8 @@
+"use client";
+
 import React from "react";
+import { motion, type Variants } from "motion/react";
+import Reveal from "./Reveal";
 
 const POINTS = [
   {
@@ -27,11 +31,20 @@ const POINTS = [
   },
 ];
 
+const container: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.1 } },
+};
+const item: Variants = {
+  hidden: { opacity: 0, y: 24 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+};
+
 export default function WhyUs() {
   return (
     <section className="bg-background-light py-16 md:py-28" id="kenapa-kami">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto mb-10 max-w-2xl text-center md:mb-14">
+        <Reveal className="mx-auto mb-10 max-w-2xl text-center md:mb-14">
           <span className="text-sm font-bold uppercase tracking-[0.2em] text-primary">Kenapa Kami</span>
           <h2 className="mt-3 text-3xl font-extrabold uppercase tracking-tight text-ink sm:text-4xl md:text-5xl">
             Kenapa Pilih Kami
@@ -39,13 +52,21 @@ export default function WhyUs() {
           <p className="mt-3 text-gray-500 md:mt-4">
             Bukan sekadar cepat — kami menjaga keamanan akun dan kualitas hasil sebagai prioritas.
           </p>
-        </div>
+        </Reveal>
 
-        <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
+        <motion.div
+          className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4"
+          variants={container}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.2 }}
+        >
           {POINTS.map((p) => (
-            <div
+            <motion.div
               key={p.title}
-              className="group flex items-start gap-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10 sm:flex-col sm:gap-0 sm:rounded-3xl sm:p-7"
+              variants={item}
+              whileHover={{ y: -6 }}
+              className="group flex items-start gap-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-shadow hover:shadow-xl hover:shadow-primary/10 sm:flex-col sm:gap-0 sm:rounded-3xl sm:p-7"
             >
               <div
                 className={`inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl transition-transform duration-300 group-hover:scale-110 sm:mb-5 sm:h-14 sm:w-14 ${p.iconBg}`}
@@ -56,9 +77,9 @@ export default function WhyUs() {
                 <h3 className="text-base font-extrabold text-ink sm:text-lg">{p.title}</h3>
                 <p className="mt-1.5 text-sm leading-relaxed text-gray-500 sm:mt-2">{p.desc}</p>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

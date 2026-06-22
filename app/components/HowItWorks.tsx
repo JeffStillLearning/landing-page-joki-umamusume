@@ -1,5 +1,9 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
+import { motion, type Variants } from "motion/react";
+import Reveal from "./Reveal";
 
 const STEPS = [
   {
@@ -24,25 +28,41 @@ const STEPS = [
   },
 ];
 
+const container: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.12 } },
+};
+const item: Variants = {
+  hidden: { opacity: 0, y: 24 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+};
+
 export default function HowItWorks() {
   return (
     <section className="relative overflow-hidden bg-white py-16 md:py-28" id="cara-kerja">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto mb-10 max-w-2xl text-center md:mb-14">
+        <Reveal className="mx-auto mb-10 max-w-2xl text-center md:mb-14">
           <span className="text-sm font-bold uppercase tracking-[0.2em] text-primary">Alur Mudah</span>
           <h2 className="mt-3 text-3xl font-extrabold uppercase tracking-tight text-ink sm:text-4xl md:text-5xl">
             Cara Kerja
           </h2>
           <p className="mt-3 text-gray-500 md:mt-4">Empat langkah simpel dari pesan sampai akun selesai.</p>
-        </div>
+        </Reveal>
 
-        <ol className="relative mx-auto max-w-6xl flex flex-col gap-0 lg:grid lg:grid-cols-4 lg:gap-8">
+        <motion.ol
+          className="relative mx-auto max-w-6xl flex flex-col gap-0 lg:grid lg:grid-cols-4 lg:gap-8"
+          variants={container}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.2 }}
+        >
           {/* Horizontal track (desktop) */}
           <div className="absolute left-0 right-0 top-9 hidden h-0.5 bg-gradient-to-r from-primary/30 via-accent/40 to-primary/30 lg:block" />
 
           {STEPS.map((step, i) => (
-            <li
+            <motion.li
               key={step.title}
+              variants={item}
               className="relative flex items-start gap-5 pb-9 last:pb-0 lg:flex-col lg:gap-0 lg:pb-0"
             >
               {/* Vertical connector (mobile) */}
@@ -61,11 +81,11 @@ export default function HowItWorks() {
                 <h3 className="text-lg font-extrabold text-ink lg:mt-5">{step.title}</h3>
                 <p className="mt-1.5 max-w-xs text-sm leading-relaxed text-gray-500 lg:mt-2">{step.desc}</p>
               </div>
-            </li>
+            </motion.li>
           ))}
-        </ol>
+        </motion.ol>
 
-        <div className="mt-12 flex justify-center md:mt-14">
+        <Reveal className="mt-12 flex justify-center md:mt-14">
           <Link
             href="/joki"
             className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-full bg-gradient-to-r from-primary to-primary-dark px-8 py-3.5 text-base font-bold text-white shadow-lg shadow-primary/25 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/30"
@@ -73,7 +93,7 @@ export default function HowItWorks() {
             <span className="material-symbols-outlined text-[20px]">bolt</span>
             Mulai Sekarang
           </Link>
-        </div>
+        </Reveal>
       </div>
     </section>
   );
